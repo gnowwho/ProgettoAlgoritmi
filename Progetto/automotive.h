@@ -30,7 +30,6 @@ struct Chiamata {
   tempo OraPartenza;
   tempo OraArrivo;
   cash Premio;
-  int indice; /*Usato in ordinamenti indiretti*/
 
 };
 typedef struct Chiamata call;
@@ -48,24 +47,38 @@ struct Veicolo {
 typedef struct _Nodo nodo;
 struct _Nodo{
   tempo peso; /*distanza dal padre*/
-  nodo* fratello; /*fratello successivo in nessun ordine particolare*/
+  nodo *fratello; /*fratello successivo in nessun ordine particolare*/
 };
 
-typedef nodo* grafo;
+typedef nodo *grafo;
 
-typedef struct _evento evento;
+typedef struct _Viaggio viaggio;
+struct _Viaggio{
+  pos Partenza;
+  pos Arrivo;
+  tempo OraPartenza;
+  tempo OraArrivo;
+  cash Premio;
+  int *ElencoNodi;
+  tempo Durata;
+};
+
+typedef struct _evento event;
 struct _evento{
   tempo Ora;
   char  Tipo[50];
   int   Auto;
   char  Nome[50];
-  evento* next;
+  viaggio *quest;
+  event *next;
 };
-typedef evento* ptevento;
+typedef event *ptevent;
 
 ptcall *getcalls (FILE *fp, int *hmcalls);
 
 void printcalls (ptcall *vettcall, int k);
+
+void freecalls (ptcall *vettcall, int k);
 
 void printclients (ptcall *vettcall, int k);
 
@@ -76,5 +89,7 @@ void ScambiaChiamate (ptcall *pa, ptcall *pb);
 ptevent AddEvent (ptevent pne, ptevent poe);
 
 ptevent ImportaEventoChiamate (ptcall *chiamate, int num);
+
+void printevent(ptevent primo);
 
 #endif

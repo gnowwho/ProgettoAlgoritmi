@@ -31,7 +31,6 @@ ptcall *getcalls (FILE *fp, int *hmcalls){
                                         &vettcall[i]->OraPartenza,
                                         &vettcall[i]->OraArrivo,
                                         &vettcall[i]->Premio);
-    vettcall[i]->indice=i+1;
   }
  return vettcall;
 
@@ -49,9 +48,19 @@ void printcalls (ptcall *vettcall, int k){
                                         vettcall[i]->Arrivo,
                                         vettcall[i]->OraPartenza,
                                         vettcall[i]->OraArrivo,
-                                        vettcall[i]->Premio,
-                                        vettcall[i]->indice);
+                                        vettcall[i]->Premio);
   }
+
+}
+
+void freecalls (ptcall *vettcall, int k){
+  int i;
+
+  for(i=0; i<k; i++){
+    free(vettcall[i]);
+  }
+
+  free(vettcall);
 
 }
 
@@ -128,27 +137,44 @@ ptevent AddEvent (ptevent pne, ptevent poe){
   return pne;
 }
 
-ptevento CallToEvent (ptcall tel){
-  ptevento evchiamata;
+/*a partire da un puntatore a chiamata genera un evento corrispondente a quella chiamata, e restituisce un puntatore ad esso*/
+ptevent CallToEvent (ptcall tel){
+  ptevent evchiamata;
 
-  evchiamata=malloc(sizeof(evento));
+  evchiamata=malloc(sizeof(event));
+  evchiamata->quest=malloc(sizeof(viaggio));
   evchiamata->Ora=tel->Ora;
+  strcpy(evchiamata->Tipo,"CHIAMATA");
+  evchiamata->Auto=0;
+  strcpy(evchiamata->Nome,tel->Nome);
+  evchiamata->quest->Partenza=tel->Partenza;
+  evchiamata->quest->Arrivo=tel->Arrivo;
+  evchiamata->quest->OraPartenza=tel->OraArrivo;
+  evchiamata->quest->Premio=tel->Premio;
+  evchiamata->next=NULL;
 
+  return evchiamata;
 }
 
 /*Importa la lista delle chiamate, opportunamente in eventi, nell'ordine che i loro puntatori occupano in memoria*/
-/*ptevent ImportaEventoChiamate (ptcall *chiamate, int num){
+ptevent ImportaEventoChiamate (ptcall *chiamate, int num){
 int i;
-ptevent evlist, scorri;
+ptevent evlist, *scorri;
 
-evlist=scorri;
+scorri=&evlist;
 
 for (i=0;i<num;i++){
-    scorri=malloc(sizeof(evento));
-    scorri->Ora=chiamate[i]->Ora;
-    scorri=scorri->next
+    *scorri=CallToEvent(chiamate[i]);
+    scorri=&((*scorri)->next);
 }
-scorri->next=NULL;
+
 return evlist;
 }
-*/
+
+void printevent(ptevent primo){
+
+  printf("EVENTI:\n");
+  for(;primo!=NULL;primo=primo->next){
+    printf("%d %s %d %s\n",primo->Ora,primo->Tipo,primo->Auto,primo->Nome);
+  }
+}
