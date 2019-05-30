@@ -1,0 +1,3 @@
+prod(somma(5,3),div(10,diff(4,2)))
+div(10.0,3.0)
+somma(1.0,somma(2.0,somma(3.0,somma(4.0,somma(5.0,6.0)))))

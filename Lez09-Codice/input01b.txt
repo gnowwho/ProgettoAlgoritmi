@@ -1,0 +1,10 @@
+PRESTITO Bertossi A., "Algoritmi e Strutture Dati"
+PRESTITO Kernighan B. e Ritchie D., "Il linguaggio C"
+PRESTITO Adams S., "Il principio di Dilbert"
+RESTITUZIONE Kernighan B. e Ritchie D., "Il linguaggio C"
+PRESTITO Shakespeare W., "Le allegre comari di Windsor"
+PRESTITO Pennac D., "La prosivendola"
+PRESTITO Yourcenar M., "L'opera al nero"
+RESTITUZIONE Bertossi A., "Algoritmi e Strutture Dati"
+RESTITUZIONE Shakespeare W., "Le allegre comari di Windsor"
+FINE

@@ -1,0 +1,11 @@
+Adams S., "Il principio di Dilbert"
+Bertossi A., "Algoritmi e Strutture Dati"
+Chaucer G., "I Racconti di Canterbury"
+Hoeg P., "Il senso di Smilla per la neve"
+Hofstadter D., "Godel, Escher, Bach"
+Kernighan B. e Ritchie D., "Il linguaggio C"
+King S., "L'ombra dello scorpione"
+Pennac D., "La prosivendola"
+Shakespeare W., "Le allegre comari di Windsor"
+Yourcenar M., "L'opera al nero"
+FINE
