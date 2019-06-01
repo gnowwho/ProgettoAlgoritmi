@@ -42,7 +42,7 @@ void printcalls (ptcall *vettcall, int k){
   int i;
 
   for(i=0;i<k;i++){
-    printf("%d %s %d %d %d %d %d %d\n", vettcall[i]->Ora,
+    printf("%d %s %d %d %d %d %d\n", vettcall[i]->Ora,
                                         vettcall[i]->Nome,
                                         vettcall[i]->Partenza,
                                         vettcall[i]->Arrivo,
@@ -171,10 +171,93 @@ for (i=0;i<num;i++){
 return evlist;
 }
 
+/*Stampa tutta la lista eventi nella formattazione richiesta*/
 void printevent(ptevent primo){
 
   printf("EVENTI:\n");
   for(;primo!=NULL;primo=primo->next){
     printf("%d %s %d %s\n",primo->Ora,primo->Tipo,primo->Auto,primo->Nome);
   }
+}
+
+/*crea un grafo di NumNodi vertici senza lati. é preferibile passarne l'indirizzo per muovere meno memoria*/
+grafo *NewGraph (int NumNodi){
+  grafo *Rete;
+  int i;
+
+  Rete=malloc(sizeof(grafo));
+  if(Rete == NULL){
+    printf("Errore allocazione grafo: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  Rete->NumeroNodi = NumNodi;
+  Rete->ListaNodi = malloc(NumNodi*sizeof(nodo));
+
+  if(Rete->ListaNodi == NULL){
+    printf("Errore allocazione lista nodi: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  /*inizializzo a NULL*/
+for(i=0;i<Rete->NumeroNodi;i++){
+  Rete->ListaNodi[i]=NULL;
+}
+
+  return Rete;
+}
+
+/*Crea un arco verso ... e restituisce un puntatore ad esso*/
+nodo NuovoArcoSlegato (int destinazione, int peso){
+  nodo Nuovo;
+
+  Nuovo=malloc(sizeof(arco));
+  Nuovo->indice=destinazione;
+  Nuovo->peso=peso;
+  Nuovo->fratello=NULL;
+
+  return Nuovo;
+}
+
+/*Aggiunge un arco non orientato da part a fine al grafo Rete passato per indirizzo*/
+void NuovoArco (int part, int fine, int peso, grafo *Rete){
+  nodo new;
+
+  new=NuovoArcoSlegato (fine, peso);
+  new->fratello=Rete->ListaNodi[part-1];
+  Rete->ListaNodi[part-1]=new;
+
+  new=NuovoArcoSlegato (part, peso);
+  new->fratello=Rete->ListaNodi[fine-1];
+  Rete->ListaNodi[fine-1]=new;
+}
+
+grafo *getgraph (FILE *fp){
+  grafo *Rete;
+  int i,hmnodes,hmedges,A,B,P;
+
+  fscanf(fp, "%d %d", &hmnodes, &hmedges);
+  Rete=NewGraph(hmnodes);
+
+  for(i=0;i<hmedges;i++){
+    fscanf(fp, "%d %d %d\n", &A, &B, &P);
+    NuovoArco(A,B,P,Rete);
+  }
+return Rete;
+}
+
+/*funzione di test per stampare le liste di adiacenza*/
+void printgraph (grafo *rete){
+  int i;
+  nodo temp;
+
+
+  for(i=0;i<rete->NumeroNodi;i++){
+    temp=rete->ListaNodi[i];
+    printf ("%d ->",i+1);
+    while(temp!=NULL){
+      printf(" %d",temp->indice);
+      temp=temp->fratello;
+    }
+    printf("\n");
+  }
+
 }
