@@ -122,6 +122,7 @@ int Partition (ptcall *V, int s, int d){
   return s2;
 }
 
+/*semplice routine di scambio tra chiamate per indirizzo*/
 void ScambiaChiamate (ptcall *pa, ptcall *pb){
   ptcall temp;
 
@@ -230,6 +231,7 @@ void NuovoArco (int part, int fine, int peso, grafo *Rete){
   Rete->ListaNodi[fine-1]=new;
 }
 
+/*Funzione di acquisizione dei grafi da file*/
 grafo *getgraph (FILE *fp){
   grafo *Rete;
   int i,hmnodes,hmedges,A,B,P;
