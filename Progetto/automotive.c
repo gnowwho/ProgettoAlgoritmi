@@ -31,7 +31,6 @@ ptcall *getcalls (FILE *fp, int *hmcalls){
                                         &vettcall[i]->OraPartenza,
                                         &vettcall[i]->OraArrivo,
                                         &vettcall[i]->Premio);
-    vettcall[i]->indice=i+1;
   }
  return vettcall;
 
@@ -43,15 +42,25 @@ void printcalls (ptcall *vettcall, int k){
   int i;
 
   for(i=0;i<k;i++){
-    printf("%d %s %d %d %d %d %d %d\n", vettcall[i]->Ora,
+    printf("%d %s %d %d %d %d %d\n", vettcall[i]->Ora,
                                         vettcall[i]->Nome,
                                         vettcall[i]->Partenza,
                                         vettcall[i]->Arrivo,
                                         vettcall[i]->OraPartenza,
                                         vettcall[i]->OraArrivo,
-                                        vettcall[i]->Premio,
-                                        vettcall[i]->indice);
+                                        vettcall[i]->Premio);
   }
+
+}
+
+void freecalls (ptcall *vettcall, int k){
+  int i;
+
+  for(i=0; i<k; i++){
+    free(vettcall[i]);
+  }
+
+  free(vettcall);
 
 }
 
@@ -128,27 +137,127 @@ ptevent AddEvent (ptevent pne, ptevent poe){
   return pne;
 }
 
-ptevento CallToEvent (ptcall tel){
-  ptevento evchiamata;
+/*a partire da un puntatore a chiamata genera un evento corrispondente a quella chiamata, e restituisce un puntatore ad esso*/
+ptevent CallToEvent (ptcall tel){
+  ptevent evchiamata;
 
-  evchiamata=malloc(sizeof(evento));
+  evchiamata=malloc(sizeof(event));
+  evchiamata->quest=malloc(sizeof(viaggio));
   evchiamata->Ora=tel->Ora;
+  strcpy(evchiamata->Tipo,"CHIAMATA");
+  evchiamata->Auto=0;
+  strcpy(evchiamata->Nome,tel->Nome);
+  evchiamata->quest->Partenza=tel->Partenza;
+  evchiamata->quest->Arrivo=tel->Arrivo;
+  evchiamata->quest->OraPartenza=tel->OraArrivo;
+  evchiamata->quest->Premio=tel->Premio;
+  evchiamata->next=NULL;
 
+  return evchiamata;
 }
 
 /*Importa la lista delle chiamate, opportunamente in eventi, nell'ordine che i loro puntatori occupano in memoria*/
-/*ptevent ImportaEventoChiamate (ptcall *chiamate, int num){
+ptevent ImportaEventoChiamate (ptcall *chiamate, int num){
 int i;
-ptevent evlist, scorri;
+ptevent evlist, *scorri;
 
-evlist=scorri;
+scorri=&evlist;
 
 for (i=0;i<num;i++){
-    scorri=malloc(sizeof(evento));
-    scorri->Ora=chiamate[i]->Ora;
-    scorri=scorri->next
+    *scorri=CallToEvent(chiamate[i]);
+    scorri=&((*scorri)->next);
 }
-scorri->next=NULL;
+
 return evlist;
 }
-*/
+
+/*Stampa tutta la lista eventi nella formattazione richiesta*/
+void printevent(ptevent primo){
+
+  printf("EVENTI:\n");
+  for(;primo!=NULL;primo=primo->next){
+    printf("%d %s %d %s\n",primo->Ora,primo->Tipo,primo->Auto,primo->Nome);
+  }
+}
+
+/*crea un grafo di NumNodi vertici senza lati. é preferibile passarne l'indirizzo per muovere meno memoria*/
+grafo *NewGraph (int NumNodi){
+  grafo *Rete;
+  int i;
+
+  Rete=malloc(sizeof(grafo));
+  if(Rete == NULL){
+    printf("Errore allocazione grafo: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  Rete->NumeroNodi = NumNodi;
+  Rete->ListaNodi = malloc(NumNodi*sizeof(nodo));
+
+  if(Rete->ListaNodi == NULL){
+    printf("Errore allocazione lista nodi: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  /*inizializzo a NULL*/
+for(i=0;i<Rete->NumeroNodi;i++){
+  Rete->ListaNodi[i]=NULL;
+}
+
+  return Rete;
+}
+
+/*Crea un arco verso ... e restituisce un puntatore ad esso*/
+nodo NuovoArcoSlegato (int destinazione, int peso){
+  nodo Nuovo;
+
+  Nuovo=malloc(sizeof(arco));
+  Nuovo->indice=destinazione;
+  Nuovo->peso=peso;
+  Nuovo->fratello=NULL;
+
+  return Nuovo;
+}
+
+/*Aggiunge un arco non orientato da part a fine al grafo Rete passato per indirizzo*/
+void NuovoArco (int part, int fine, int peso, grafo *Rete){
+  nodo new;
+
+  new=NuovoArcoSlegato (fine, peso);
+  new->fratello=Rete->ListaNodi[part-1];
+  Rete->ListaNodi[part-1]=new;
+
+  new=NuovoArcoSlegato (part, peso);
+  new->fratello=Rete->ListaNodi[fine-1];
+  Rete->ListaNodi[fine-1]=new;
+}
+
+grafo *getgraph (FILE *fp){
+  grafo *Rete;
+  int i,hmnodes,hmedges,A,B,P;
+
+  fscanf(fp, "%d %d", &hmnodes, &hmedges);
+  Rete=NewGraph(hmnodes);
+
+  for(i=0;i<hmedges;i++){
+    fscanf(fp, "%d %d %d\n", &A, &B, &P);
+    NuovoArco(A,B,P,Rete);
+  }
+return Rete;
+}
+
+/*funzione di test per stampare le liste di adiacenza*/
+void printgraph (grafo *rete){
+  int i;
+  nodo temp;
+
+
+  for(i=0;i<rete->NumeroNodi;i++){
+    temp=rete->ListaNodi[i];
+    printf ("%d ->",i+1);
+    while(temp!=NULL){
+      printf(" %d",temp->indice);
+      temp=temp->fratello;
+    }
+    printf("\n");
+  }
+
+}

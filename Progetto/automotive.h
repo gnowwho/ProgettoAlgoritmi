@@ -30,11 +30,10 @@ struct Chiamata {
   tempo OraPartenza;
   tempo OraArrivo;
   cash Premio;
-  int indice; /*Usato in ordinamenti indiretti*/
 
 };
 typedef struct Chiamata call;
-typedef call* ptcall;
+typedef call *ptcall;
 
 typedef struct Veicolo car;
 struct Veicolo {
@@ -45,27 +44,46 @@ struct Veicolo {
   boolean Libera;
 };
 
-typedef struct _Nodo nodo;
-struct _Nodo{
-  tempo peso; /*distanza dal padre*/
-  nodo* fratello; /*fratello successivo in nessun ordine particolare*/
+typedef struct _Arco arco;
+struct _Arco{
+  int indice; /*indice di questo nodo, l'indice del padre è la sua posizione nel grafo+1 (array starts at 0)*/
+  tempo peso; /*distanza tra il padre e questo nodo*/
+  arco *fratello; /*fratello successivo in nessun ordine particolare*/
 };
 
-typedef nodo* grafo;
+typedef arco *nodo;
+typedef struct _grafo{
+   nodo *ListaNodi;
+   int NumeroNodi;
+ } grafo;
 
-typedef struct _evento evento;
+typedef struct _Viaggio viaggio;
+struct _Viaggio{
+  pos Partenza;
+  pos Arrivo;
+  tempo OraPartenza;
+  tempo OraArrivo;
+  cash Premio;
+  int *ElencoNodi;
+  tempo Durata;
+};
+
+typedef struct _evento event;
 struct _evento{
   tempo Ora;
   char  Tipo[50];
   int   Auto;
   char  Nome[50];
-  evento* next;
+  viaggio *quest;
+  event *next;
 };
-typedef evento* ptevento;
+typedef event *ptevent;
 
 ptcall *getcalls (FILE *fp, int *hmcalls);
 
 void printcalls (ptcall *vettcall, int k);
+
+void freecalls (ptcall *vettcall, int k);
 
 void printclients (ptcall *vettcall, int k);
 
@@ -75,6 +93,20 @@ void ScambiaChiamate (ptcall *pa, ptcall *pb);
 
 ptevent AddEvent (ptevent pne, ptevent poe);
 
+ptevent CallToEvent (ptcall tel);
+
 ptevent ImportaEventoChiamate (ptcall *chiamate, int num);
+
+void printevent(ptevent primo);
+
+grafo *NewGraph (int NumNodi);
+
+nodo NuovoArcoSlegato (int destinazione, int peso);
+
+void NuovoArco (int part, int fine, int peso, grafo *Rete);
+
+grafo *getgraph (FILE *fp);
+
+void printgraph (grafo *rete);
 
 #endif

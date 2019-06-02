@@ -24,6 +24,8 @@ int main (int argc, char *argv[])
   /*grafo *graph;*/
   ptcall *ListaChiamate;
   int NumChiamate;
+  ptevent ListaEventi;
+  grafo *ReteStradale;
 
   /* Parte esecutiva */
   InterpretaLineaComando(argc,argv,chiamate,rete,veicoli);
@@ -50,12 +52,23 @@ int main (int argc, char *argv[])
       exit(EXIT_FAILURE);
     }
 
+/*Inizializza e produce l'elenco delle chiamate*/
   ListaChiamate=NULL; /*Inizializzato perchè -Wall sorride di più così*/
   ListaChiamate=getcalls(fcall,&NumChiamate);
-
+  ReteStradale=getgraph(fnet);
+/*Inizia a creare gli eventi generati dalle chiamate e li salva nella struttura dati adeguata*/
+  ListaEventi=ImportaEventoChiamate (ListaChiamate,NumChiamate);
+/*ora che l'ordine delle chiamate in ListaChiamate utile alla simulazione è stato salvato importando in tale ordine gli eventi, si ordinano
+in ordine alfabetico per il nome dei clienti, lo si stampa, e si libera la memoria: non ci serviranno più le chiamate in questa forma.*/
   QuickSort(ListaChiamate,0,NumChiamate-1);
+//  printclients(ListaChiamate,NumChiamate);
+  freecalls (ListaChiamate,NumChiamate);
 
-  printclients(ListaChiamate,NumChiamate);
+  printevent(ListaEventi);
+
+  printgraph(ReteStradale);
+
+
 
   fclose(fcall);
   fclose(fnet);
