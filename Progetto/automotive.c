@@ -175,7 +175,7 @@ return evlist;
 /*Stampa tutta la lista eventi nella formattazione richiesta*/
 void printevent(ptevent primo){
 
-  printf("EVENTI:\n");
+  printf("Eventi:\n");
   for(;primo!=NULL;primo=primo->next){
     printf("%d %s %d %s\n",primo->Ora,primo->Tipo,primo->Auto,primo->Nome);
   }
@@ -211,6 +211,10 @@ nodo NuovoArcoSlegato (int destinazione, int peso){
   nodo Nuovo;
 
   Nuovo=malloc(sizeof(arco));
+  if(Nuovo == NULL){
+    printf("Errore allocazione Nuovo Arco: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
   Nuovo->indice=destinazione;
   Nuovo->peso=peso;
   Nuovo->fratello=NULL;
@@ -261,5 +265,90 @@ void printgraph (grafo *rete){
     }
     printf("\n");
   }
+
+}
+
+/*Trova il cammino minimo da Fonte a Dest (indici, non pos nell'array) nel grafo
+ puntato da rete e restituisce un puntatore all'elenco degli archi che compongono
+ tale cammino, per indirizzo*/
+nodo Dijkstra (grafo *rete,int Fonte, int Dest, int *dist){
+int *Raggiunto,*Distanza,i,min,indmin;
+nodo temp;
+
+if((Fonte>rete->NumeroNodi) || (Dest>rete->NumeroNodi)){
+  printf("Errore nella chiamata di Dijkstra\n");
+  exit(EXIT_FAILURE);
+}
+
+Distanza=malloc(sizeof(int)*rete->NumeroNodi);
+if(Distanza == NULL){
+  printf("Errore allocazione lista: %s\n", strerror(errno));
+  exit(EXIT_FAILURE);
+}
+/*inizializzo le distanze ad infinito*/
+memset(Distanza,inf,sizeof(int));
+
+Raggiunto=malloc(rete->NumeroNodi*sizeof(int));
+if(Raggiunto == NULL){
+  printf("Errore allocazione lista: %s\n", strerror(errno));
+  exit(EXIT_FAILURE);
+}
+/*Segno i nodi come non raggiunti (raggiunti dal nodo di indice -NumeroNodi, che non esiste)*/
+memset(Raggiunto,-NumeroNodi-1,sizeof(int));
+
+/*inizializzo il peso di Fonte a 0 e la segno come raggiunto da se stesso */
+Raggiunto[Fonte-1]=Fonte-1;
+Distanza[Fonte-1]=0;
+
+/*finchè Dest non è segnato come raggiunto da qualcosa faccio:*/
+While(Raggiunto[Dest-1]<0){
+
+  /*Aggiorno la lista dei nodi raggiungibili in un passo*/
+  for(i=0;i<rete->NumeroNodi;i++){
+    if (Raggiunto[i]>=0){ /*se il nodo è raggiunto*/
+      temp=rete->ListaNodi[i]; /*guardo la sua lista di adiacenza*/
+      while(temp->fratello!=NULL){ /*la scorro tutta*/
+        if (Distanza[temp->indice]==inf){ /*se un nodo non è già stato segnato come raggiungibile in un passo*/
+          Distanza[temp->indice]=Distanza[i]+temp->peso; /*lo segno come tale*/
+          Raggiunto[i]=-(i+1); /*tengo conto di chi può raggiungerlo senza segnarlo come raggiunto*/
+          temp=temp->fratello; /*aggiorno temp per scorrere la lista di adiacenza*/
+          }
+        }
+      }
+    }
+
+  /*cerco la minima distanza tra i nodi non raggiunti ma raggiungibili e segno
+  il nodo relativo a tale valore come raggiungibile*/
+  min=inf;
+  indmin=-1;
+  for(i=0;i<rete->NumeroNodi;i++){ /*passo tutti i nodi*/
+    if((Raggiunto[i]<0)&&(Distanza[i]<min)){/*se ne trovo uno non raggiunto ma raggiungimile in meno tempo del minimo corrente*/
+      min=Distanza[i]; /*aggiorno il minimo corrente*/
+      indmin=i; /*e segno che nodo è*/
+    }
+   }
+   if(indmin!=-1){ /*se ho trovatotale minimo (dovrebbe essere sempre vero perchè il grafo è connesso)*/
+     Raggiunto[indmin]=-(Raggiunto[indmin]+1);
+   }
+
+  }
+}
+
+/*
+!creo array da 1 a NumeroNodi, per mettere i pesi TOTALI
+!creo array da 1 a NumeroNodi, per stabilire se sono stati raggiunti
+
+!inizializzo:  ho raggiunto solo Fonte con peso 0, gli altri hanno peso inf
+
+setto i pesi di ogni cammino raggiungibile da un nodo raggiunto ma non ancora
+  Raggiunto a: peso del nodo che lo raggiunge + quello dell'arco
+
+se esiste un nodo non raggiunto di peso non infinito, cerco il minimo tra tali
+  pesi e segno il nodo come raggiunto
+
+Se Dest è stato raggiunto mi fermo
+
+*/
+
 
 }
