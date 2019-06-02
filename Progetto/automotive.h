@@ -39,7 +39,8 @@ typedef struct Veicolo car;
 struct Veicolo {
   int Numero;
   tempo AttivitaMax;
-  tempo Autonomia;
+  tempo AutonomiaMax;
+  tempo CAutonomia; /*complementare autonomia: tempo di movimento dall'ultima ricarica*/
   pos posizione;
   boolean Libera;
 };
