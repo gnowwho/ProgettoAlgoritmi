@@ -1,0 +1,67 @@
+/*Implementazione dell'algoritmo di Dijkstra per la risoluzione del problema del cammino minimo tra una coppia di nodi dati. Questa Implementazione ha complessità
+ O(m logn) dove m è il numero di archi e n il numero di vertici del grafo, grazie all'impiego degli heap per estrarre il minimo valore.
+ Osserviamo che m<n^2 ma possiamo supporlo più vicino all'ordine di grandezza di n, data la sensata presunzione che una rete stradale sia rappresentabile da un grafo
+ sparso.*/
+/*Gli input devono avere come src e dst il NOME del nodo (quindi l'indice che occupa in memoria +1)*/
+int dijkstra(grafo* graph, int src, int dst){
+  mHeap *minHeap;
+  int V, *dist;
+  int v,u;
+  ElementoHeap* MinimumElement;
+  nodo pCrawl;
+
+  src--;/*questi comandi permettono l'uso del nome intuitivo dei nodi senza la traslazione data dal conto che parte da 0 ...*/
+  dst--;/*... tipico delle strutture di memoria in cui sono salvati i dati*/
+
+  V = graph->NumeroNodi;        /*Legge il numero di vertici del grafo*/
+  dist=malloc(V*sizeof(int));   /*Vettore per tener conto delle distanze aggiornate dei nodi dall'origine*/
+
+  /*minHeap dovrà rappresentare gli archi del grafo*/
+  minHeap = NuovomHeap(V);
+
+  /*inizializzazione dello heap e del vettore delle distanze*/
+  for (v = 0; v < V; v++){
+      dist[v] = INF;
+      minHeap->array[v] = newElemHeap(v, dist[v]);
+      minHeap->pos[v] = v;
+  }
+
+  /*Aggiorna la distanza di src da se stesso a 0: sarà il primo nodo ad essere estratto dallo while*/
+  dist[src] = 0;
+  AggiornaDistanza(minHeap, src, dist[src]);
+/*OSS: questo approccio all'inizializzazione è più conveniente rispetto a quello in cui si scrive direttamente in posizione src una distanza uguale a 0
+in quanto richiede una sola operazione invece di O(n) controlli*/
+
+  /*Inizializzo il numero di elementi "attivi" dello heap*/
+  minHeap->NumElementi = V;
+
+  /*il loop esegue fintanto che non ho estratto dallo heap la destinazione, e
+  quindi trovato la sua distanza minima da src*/
+  while (isInmHeap(minHeap,dst))
+  {
+      /*estraggo il vertice più vicino all'origine tra quelli raggiungibili in un passo da vertici per cui ho già stabilito la distanza minima da src*/
+      MinimumElement = extractMin(minHeap);
+      u = MinimumElement->Vertice; /*salvo l'indice del vertice appena estratto per non dover guardare ogni volta in MinimumElement->Vertice*/
+
+      /*Aggiorno la distanza di tutti i nodi adiacenti al nodo di indice u scegliendo la minima tra la precedente e quella possibile passando da u*/
+      pCrawl = graph->ListaNodi[u]; /*salvo la testa della lista di adiacenza di u per poi scorrerla*/
+      while (pCrawl != NULL){
+          v = pCrawl->indice - 1; /*tolgo uno perchè in indice ho il nome intuitivo del vertice (contato da 1), e devo farlo corrispondere agli indici delle strutture
+                                    in cui sono salvati i suoi dati (contate da 0)*/
+
+          // If shortest distance to v is not finalized yet, and distance to v
+          // through u is less than its previously calculated distance
+          /*Se non ho ancora stabilito la distanza minima definitiva && u fa parte della stessa componente connessa del grafo && la distanza di v è maggiore
+            di quella che avrebbe se raggiunto passando da u, aggiorno la distanza di v nel vettore ausiliario e nello heap*/
+          if (isInmHeap(minHeap, v) && dist[u] != INF && pCrawl->peso + dist[u] < dist[v]){
+
+              dist[v] = dist[u] + pCrawl->peso;
+              AggiornaDistanza(minHeap, v, dist[v]);
+          }
+          pCrawl = pCrawl->fratello; /*scorro avanti nella lista di adiacenza*/
+      }
+  }
+
+  /*quando esco dallo while la distanza di dst da src è nella relativa cella del vettore ausiliario delle distanze*/
+  return dist[dst];
+}

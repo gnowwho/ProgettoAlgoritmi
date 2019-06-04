@@ -4,20 +4,22 @@
 #include <errno.h>
 #include"automotive.h"
 
-/*legge il numero di chiamate, alloca dinamicamente il vettore dei pointer alle chiamate, e poi memoria per una chiamata per ognuno di quei puntatori. questo approccio migliora il sorting*/
+/*legge il numero di chiamate, alloca dinamicamente il vettore dei pointer alle chiamate, e poi memoria per una chiamata per ognuno di quei puntatori.
+questo approccio migliora il sorting*/
 ptcall *getcalls (FILE *fp, int *hmcalls){
   int i;
   ptcall *vettcall;
 
+  /*Leggo il numero di chiamate e alloco altrettanti puntatori a chiamata*/
   fscanf(fp, "%d", hmcalls);
 
   vettcall = malloc(*hmcalls*sizeof(ptcall));
-
   if(vettcall == NULL){
     printf("Errore allocazione lista: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
+  /*per ogni puntatore a chiamata alloco una chiamata e la leggo da file*/
   for(i=0;i<*hmcalls;i++){
     vettcall[i] = malloc(sizeof(call));
     if(vettcall[i] == NULL){
@@ -42,13 +44,13 @@ void printcalls (ptcall *vettcall, int k){
   int i;
 
   for(i=0;i<k;i++){
-    printf("%d %s %d %d %d %d %d\n", vettcall[i]->Ora,
-                                        vettcall[i]->Nome,
-                                        vettcall[i]->Partenza,
-                                        vettcall[i]->Arrivo,
-                                        vettcall[i]->OraPartenza,
-                                        vettcall[i]->OraArrivo,
-                                        vettcall[i]->Premio);
+    printf("%d %s %d %d %d %d %d\n",  vettcall[i]->Ora,
+                                      vettcall[i]->Nome,
+                                      vettcall[i]->Partenza,
+                                      vettcall[i]->Arrivo,
+                                      vettcall[i]->OraPartenza,
+                                      vettcall[i]->OraArrivo,
+                                      vettcall[i]->Premio);
   }
 
 }
@@ -56,10 +58,11 @@ void printcalls (ptcall *vettcall, int k){
 void freecalls (ptcall *vettcall, int k){
   int i;
 
+  /*prima dealloco la memoria occupata dalle chiamate*/
   for(i=0; i<k; i++){
     free(vettcall[i]);
   }
-
+  /*poi quella occupata dai puntatori ad esse. quella occupata dal puntatore a questi puntatori viene deallocata automaticamente perchè in una variabile staticamente dichiarata*/
   free(vettcall);
 
 }
@@ -159,17 +162,18 @@ ptevent CallToEvent (ptcall tel){
 
 /*Importa la lista delle chiamate, opportunamente in eventi, nell'ordine che i loro puntatori occupano in memoria*/
 ptevent ImportaEventoChiamate (ptcall *chiamate, int num){
-int i;
-ptevent evlist, *scorri;
+  int i;
+  ptevent evlist, *scorri;
 
-scorri=&evlist;
+  /*Questo approccio mi permette di non trattare in modo sintatticamente diverso il primo elemento dagli altri*/
+  scorri=&evlist;
 
-for (i=0;i<num;i++){
+  for (i=0;i<num;i++){
     *scorri=CallToEvent(chiamate[i]);
     scorri=&((*scorri)->next);
-}
+  }
 
-return evlist;
+  return evlist;
 }
 
 /*Stampa tutta la lista eventi nella formattazione richiesta*/
@@ -191,22 +195,24 @@ grafo *NewGraph (int NumNodi){
     printf("Errore allocazione grafo: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  Rete->NumeroNodi = NumNodi;
-  Rete->ListaNodi = malloc(NumNodi*sizeof(nodo));
 
+  Rete->NumeroNodi = NumNodi;
+
+  Rete->ListaNodi = malloc(NumNodi*sizeof(nodo));
   if(Rete->ListaNodi == NULL){
     printf("Errore allocazione lista nodi: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
+
   /*inizializzo a NULL*/
-for(i=0;i<Rete->NumeroNodi;i++){
-  Rete->ListaNodi[i]=NULL;
+  for(i=0;i<Rete->NumeroNodi;i++){
+    Rete->ListaNodi[i]=NULL;
 }
 
   return Rete;
 }
 
-/*Crea un arco verso ... e restituisce un puntatore ad esso*/
+/*Crea un arco verso destinazione di peso peso e restituisce un puntatore ad esso*/
 nodo NuovoArcoSlegato (int destinazione, int peso){
   nodo Nuovo;
 
@@ -217,6 +223,7 @@ nodo NuovoArcoSlegato (int destinazione, int peso){
   }
   Nuovo->indice=destinazione;
   Nuovo->peso=peso;
+  /*avere campo fratello inizializzato a NULL mi permette di trovare la fine delle liste di adiacenza*/
   Nuovo->fratello=NULL;
 
   return Nuovo;
@@ -230,6 +237,7 @@ void NuovoArco (int part, int fine, int peso, grafo *Rete){
   new->fratello=Rete->ListaNodi[part-1];
   Rete->ListaNodi[part-1]=new;
 
+  /*dato che l'arco non è orientato lo aggiungo a entrambe le liste di adiacenza*/
   new=NuovoArcoSlegato (part, peso);
   new->fratello=Rete->ListaNodi[fine-1];
   Rete->ListaNodi[fine-1]=new;
@@ -240,13 +248,16 @@ grafo *getgraph (FILE *fp){
   grafo *Rete;
   int i,hmnodes,hmedges,A,B,P;
 
+  /*acquisisco il numero di nodi e di archi da file*/
   fscanf(fp, "%d %d", &hmnodes, &hmedges);
   Rete=NewGraph(hmnodes);
 
+  /*Leggo le righe e aggiungo l'arco corrispondente*/
   for(i=0;i<hmedges;i++){
     fscanf(fp, "%d %d %d\n", &A, &B, &P);
     NuovoArco(A,B,P,Rete);
   }
+
 return Rete;
 }
 
@@ -268,9 +279,7 @@ void printgraph (grafo *rete){
 
 }
 
-/*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-/* Funzione di creazione di singoli elementi per lo Heap*/
+/*Funzione di creazione di singoli elementi per lo Heap*/
 ElementoHeap* newElemHeap(int v, int dist){
   ElementoHeap* ElemHeap;
 
@@ -311,106 +320,107 @@ mHeap* NuovomHeap(int Num){
 /*Semplice routine di scambio per elementi dello heap*/
 void ScambiaElemHeap(ElementoHeap** a, ElementoHeap** b){
   ElementoHeap* t;
+
   t = *a;
   *a = *b;
   *b = t;
 }
 
-// A standard function to heapify at given idx
-// This function also updates position of nodes when they are swapped.
-// Position is needed for AggiornaDistanza()
-
+/*Aggiorna il sottoheap dalla posizione idx, e tiene conto delle modifiche al posizionamento degli elementi, utile per AggiornaDistanza()*/
 void AggiornamHeap(mHeap* minHeap, int idx){
-  int smallest, left, right;
-  ElementoHeap *smallestNode;
-  ElementoHeap *idxNode;
+  int minimo, sin, dex;
+  ElementoHeap *ElemMin;
+  ElementoHeap *Elemidx;
 
 
-    smallest = idx;
-    left = 2 * idx + 1;
-    right = 2 * idx + 2;
+  minimo = idx;
+  sin = 2 * idx + 1;
+  dex = 2 * idx + 2;
 
-    if (left < minHeap->NumElementi &&
-        minHeap->array[left]->Peso < minHeap->array[smallest]->Peso )
-      smallest = left;
+  if ((sin < minHeap->NumElementi)&&(minHeap->array[sin]->Peso < minHeap->array[minimo]->Peso)){
+    minimo = sin;
+  }
 
-    if (right < minHeap->NumElementi &&
-        minHeap->array[right]->Peso < minHeap->array[smallest]->Peso )
-      smallest = right;
+  if ((dex < minHeap->NumElementi)&&(minHeap->array[dex]->Peso < minHeap->array[minimo]->Peso)){
+      minimo = dex;
+    }
 
-    if (smallest != idx)
-    {
-        // The nodes to be swapped in min heap
-        smallestNode = minHeap->array[smallest];
-        idxNode = minHeap->array[idx];
+  /*Se questa porzione di heap è già corretta non aggiorna nè questa nè i suoi discendenti*/
+  if (minimo != idx){
+      /*copio gli elementi da scambiare*/
+      ElemMin = minHeap->array[minimo];
+      Elemidx = minHeap->array[idx];
 
-        // Swap positions
-        minHeap->pos[smallestNode->Vertice] = idx;
-        minHeap->pos[idxNode->Vertice] = smallest;
+      /*scambio le loro posizioni*/
+      minHeap->pos[ElemMin->Vertice] = idx;
+      minHeap->pos[Elemidx->Vertice] = minimo;
 
-        // Swap nodes
-        ScambiaElemHeap(&minHeap->array[smallest], &minHeap->array[idx]);
-        AggiornamHeap(minHeap, smallest);
+      /*li scambio effettivamente*/
+      ScambiaElemHeap(&minHeap->array[minimo], &minHeap->array[idx]);
+      /*richiamo la funzione nel nodo eventualmente modificato*/
+      AggiornamHeap(minHeap, minimo);
     }
 }
 
-// A utility function to check if the given minHeap is ampty or not
+/*indovina*/
 int isEmpty(mHeap* minHeap){
     return minHeap->NumElementi == 0;
 }
 
-// Standard function to extract minimum node from heap
+/*estrae il minimo dallo heap, restituisce un puntatore ad esso e lo rimuove concettualmente dallo heap.
+ Non fisicamente, in quanto quella regione di memoria è ancora puntata*/
 ElementoHeap* extractMin(mHeap* minHeap){
-  ElementoHeap* root;
-  ElementoHeap* lastNode;
+  ElementoHeap* Primo;
+  ElementoHeap* Ultimo;
 
     if (isEmpty(minHeap))
         return NULL;
 
-    /*salva il primo nodo*/
-    root = minHeap->array[0];
+    /*salva il primo elemento*/
+    Primo = minHeap->array[0];
 
     /*Lo sostituisce con l'attuale ultimo*/
-    lastNode = minHeap->array[minHeap->NumElementi-1];
-    minHeap->array[0] = lastNode;
+    Ultimo = minHeap->array[minHeap->NumElementi-1];
+    minHeap->array[0] = Ultimo;
 
     /*aggiorna le posizioni del nuovo primo elemento e dell'elemento estratto nel vettore delle posizioni*/
-    minHeap->pos[root->Vertice] = minHeap->NumElementi-1;
-    minHeap->pos[lastNode->Vertice] = 0;
+    minHeap->pos[Primo->Vertice] = minHeap->NumElementi-1;
+    minHeap->pos[Ultimo->Vertice] = 0;
 
-    // Reduce heap size and heapify root
-    --minHeap->NumElementi;
+    /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
+    (minHeap->NumElementi)--;
     AggiornamHeap(minHeap, 0);
 
-    return root;
+    return Primo;
 }
 
-/* Modifica la distanza (si intende che viene ridotta) di un vertice di indice v
-nello heap, e poi lo fa salire di tante posizioni quante sono necessarie a mantenere la struttura di heap.
- Usa pos[] per trovare l'indice attuale di v nello heap, così non serve scorrere per contare la posizione*/
+/*Modifica la distanza (si intende che viene ridotta) di un vertice di indice v nello heap,
+ e poi lo fa salire di tante posizioni quante sono necessarie a mantenere la struttura di heap.
+ Usa pos[] per trovare l'indice attuale di v nello heap, così non serve scorrere per contare la posizione, ma lo fa in tempo costante*/
 void AggiornaDistanza(mHeap* minHeap, int v, int dist){
-    // Get the index of v in  heap array
-    int i = minHeap->pos[v];
+  int i;
 
-    // Get the node and update its dist value
-    minHeap->array[i]->Peso = dist;
+  /*Acqusisce la posizione dell'elemento v-esimo (conta da 0) nello heap*/
+  i = minHeap->pos[v];
 
-    // Travel up while the complete tree is not hepified.
-    // This is a O(Logn) loop
-    while (i && minHeap->array[i]->Peso < minHeap->array[(i - 1) / 2]->Peso)
-    {
-        // Swap this node with its parent
-        minHeap->pos[minHeap->array[i]->Vertice] = (i-1)/2;
-        minHeap->pos[minHeap->array[(i-1)/2]->Vertice] = i;
-        ScambiaElemHeap(&minHeap->array[i],  &minHeap->array[(i - 1) / 2]);
+  /*Aggiorna il suo peso, ovvero la distanza dall'origine nelle chiamate di Dijkstra*/
+  minHeap->array[i]->Peso = dist;
 
-        // move to parent index
-        i = (i - 1) / 2;
-    }
+  /*fa salire l'elemento nello heap fintanto che non trova un punto dove la condizione di heap è verificata. se i è già 0 sono in cima e quindi non ha senso salire:
+  i è messo per primo perchè con la prima condizione di un && falsa la seconda non viene valutata da C. Il ciclo gira in O(logn)*/
+  while (i && (minHeap->array[i]->Peso < minHeap->array[(i-1)/2]->Peso))
+  {
+      /*scambio prima le posizioni e poi gli elementi veri e propri*/
+      minHeap->pos[minHeap->array[i]->Vertice] = (i-1)/2;
+      minHeap->pos[minHeap->array[(i-1)/2]->Vertice] = i;
+      ScambiaElemHeap(&minHeap->array[i], &minHeap->array[(i-1)/2]);
+
+      /*il nuovo indice è quello del padre*/
+      i=(i-1)/2;
+  }
 }
 
-// A utility function to check if a given vertex
-// 'v' is in min heap or not
+/*Una routine di controllo per verificare se un elemento è o meno in minHeap. Avere il vettore delle posizioni permette questa operazione in O(1)*/
 boolean isInmHeap(mHeap *minHeap, int v){
    if (minHeap->pos[v] < minHeap->NumElementi){
       return TRUE;
@@ -420,68 +430,154 @@ boolean isInmHeap(mHeap *minHeap, int v){
      }
 }
 
-// The main function that calulates distances of shortest paths from src to all
-// vertices. It is a O(ELogV) function
-int dijkstra(grafo* graph, int src, int dst){
+/*Implementazione dell'algoritmo di Dijkstra per la risoluzione del problema del cammino minimo tra una coppia di nodi dati. Questa Implementazione ha complessità
+ O(m logn) dove m è il numero di archi e n il numero di vertici del grafo, grazie all'impiego degli heap per estrarre il minimo valore.
+ Osserviamo che m<n^2 ma possiamo supporlo più vicino all'ordine di grandezza di n, data la sensata presunzione che una rete stradale sia rappresentabile da un grafo
+ sparso.*/
+/*Gli input devono avere come src e dst il NOME del nodo (quindi l'indice che occupa in memoria +1)*/
+int dijkstra(grafo* Rete, int src, int dst){
   mHeap *minHeap;
   int V, *dist;
   int v,u;
   ElementoHeap* MinimumElement;
   nodo pCrawl;
 
+  src--;/*questi comandi permettono l'uso del nome intuitivo dei nodi senza la traslazione data dal conto che parte da 0 ...*/
+  dst--;/*... tipico delle strutture di memoria in cui sono salvati i dati*/
 
-    V = graph->NumeroNodi; /*Legge il numero di vertici del grafo*/
-    dist=malloc(V*sizeof(int)); /*Vettore per tener conto delle distanze aggiornate dei nodi dall'origine*/
+  V = Rete->NumeroNodi;        /*Legge il numero di vertici del grafo*/
+  dist=malloc(V*sizeof(int));   /*Vettore per tener conto delle distanze aggiornate dei nodi dall'origine*/
 
-    /*minHeap dovrà rappresentare gli archi del grafo*/
-    minHeap = NuovomHeap(V);
+  /*minHeap dovrà rappresentare gli archi del grafo*/
+  minHeap = NuovomHeap(V);
 
-    /*inizializzazione dello heap e del vettore delle distanze*/
-    for (v = 0; v < V; v++){
-        dist[v] = INF;
-        minHeap->array[v] = newElemHeap(v, dist[v]);
-        minHeap->pos[v] = v;
-    }
+  /*inizializzazione dello heap e del vettore delle distanze*/
+  for (v = 0; v < V; v++){
+      dist[v] = INF;
+      minHeap->array[v] = newElemHeap(v, dist[v]);
+      minHeap->pos[v] = v;
+  }
 
-    // Make dist value of src vertex as 0 so that it is extracted first
-    dist[src] = 0;
-    AggiornaDistanza(minHeap, src, dist[src]);
-    /*dist[src] = 0;
-    minHeap->array[src] = newElemHeap(src, dist[src]);
-    minHeap->pos[src]   = src;*/
+  /*Aggiorna la distanza di src da se stesso a 0: sarà il primo nodo ad essere estratto dallo while*/
+  dist[src] = 0;
+  AggiornaDistanza(minHeap, src, dist[src]);
+/*OSS: questo approccio all'inizializzazione è più conveniente rispetto a quello in cui si scrive direttamente in posizione src una distanza uguale a 0
+in quanto richiede una sola operazione invece di O(n) controlli*/
 
+  /*Inizializzo il numero di elementi "attivi" dello heap*/
+  minHeap->NumElementi = V;
 
-    // Initially NumElementi of min heap is equal to V
-    minHeap->NumElementi = V;
+  /*il loop esegue fintanto che non ho estratto dallo heap la destinazione, e
+  quindi trovato la sua distanza minima da src*/
+  while (isInmHeap(minHeap,dst))
+  {
+      /*estraggo il vertice più vicino all'origine tra quelli raggiungibili in un passo da vertici per cui ho già stabilito la distanza minima da src*/
+      MinimumElement = extractMin(minHeap);
+      u = MinimumElement->Vertice; /*salvo l'indice del vertice appena estratto per non dover guardare ogni volta in MinimumElement->Vertice*/
 
-    /*il loop esegue fintanto che non ho estratto dallo heap la destinazione, e
-    quindi trovato la sua distanza minima da src*/
-    while (isInmHeap(minHeap,dst))
-    {
-        // Extract the vertex with minimum distance value
-        MinimumElement = extractMin(minHeap);
-        u = MinimumElement->Vertice; // Store the extracted vertex number
+      /*Aggiorno la distanza di tutti i nodi adiacenti al nodo di indice u scegliendo la minima tra la precedente e quella possibile passando da u*/
+      pCrawl = Rete->ListaNodi[u]; /*salvo la testa della lista di adiacenza di u per poi scorrerla*/
+      while (pCrawl != NULL){
+          v = pCrawl->indice - 1; /*tolgo uno perchè in indice ho il nome intuitivo del vertice (contato da 1), e devo farlo corrispondere agli indici delle strutture
+                                    in cui sono salvati i suoi dati (contate da 0)*/
 
-        // Traverse through all adjacent vertices of u (the extracted
-        // vertex) and update their distance values
-        pCrawl = graph->ListaNodi[u];
-        while (pCrawl != NULL){
-            v = pCrawl->indice - 1;
+          // If shortest distance to v is not finalized yet, and distance to v
+          // through u is less than its previously calculated distance
+          /*Se non ho ancora stabilito la distanza minima definitiva && u fa parte della stessa componente connessa del grafo && la distanza di v è maggiore
+            di quella che avrebbe se raggiunto passando da u, aggiorno la distanza di v nel vettore ausiliario e nello heap*/
+          if (isInmHeap(minHeap, v) && dist[u] != INF && pCrawl->peso + dist[u] < dist[v]){
 
-            // If shortest distance to v is not finalized yet, and distance to v
-            // through u is less than its previously calculated distance
-            if (isInmHeap(minHeap, v) && dist[u] != INF &&
-                                          pCrawl->peso + dist[u] < dist[v])
-            {
-                dist[v] = dist[u] + pCrawl->peso;
+              dist[v] = dist[u] + pCrawl->peso;
+              AggiornaDistanza(minHeap, v, dist[v]);
+          }
+          pCrawl = pCrawl->fratello; /*scorro avanti nella lista di adiacenza*/
+      }
+  }
 
-                // update distance value in min heap also
-                AggiornaDistanza(minHeap, v, dist[v]);
-            }
-            pCrawl = pCrawl->fratello;
-        }
-    }
+  /*quando esco dallo while la distanza di dst da src è nella relativa cella del vettore ausiliario delle distanze*/
+  return dist[dst];
+}
 
-    // print the calculated shortest distances
-    return dist[dst];
+/*Funzione alternativa e complementare a Dijkstra che restituisce un vettore di interi in cui il primo elemento (indice 0) è la minima distanza tra src e dst
+e gli altri valori sono gli indici reali (nomi) dei nodi attraversati per realizzare tale cammino minimo.
+è implementata allo stesso modo ma traccia i predecessori, per poi produrre la lista dei nodi attraversati*/
+/*questo algoritmo è come il precedente ma richiede fino a 2n di memoria in più e un ciclo O(n), ma mediamente molto più breve*/
+int *DijkTragitto(grafo *Rete, int src,int dst,int ){
+  mHeap *minHeap;
+  int V, *dist, *succ, *Tragitto;
+  int v,u;
+  ElementoHeap* MinimumElement;
+  nodo pCrawl;
+
+  V=src-1;   /*Scambio destinazione e origine, cosicchè la lista dei predecessori diventi una lista di successori. Posso perchè il grafo non è orientato. Uso V ...*/
+  src=dst-1; /*...come variabile intermedia alla copia perchè verrà inizializzata a breve. diminuisco di 1 come sopra.*/
+  dst=V;
+
+  V = Rete->NumeroNodi;        /*Legge il numero di vertici del grafo*/
+  dist=malloc(V*sizeof(int));   /*Vettore per tener conto delle distanze aggiornate dei nodi dall'origine*/
+  succ=malloc(V*sizeof(int));   /*Vettore per tener traccia dei predecessori nel cammino inverso*/
+  Tragitto=malloc((V+1)*sizeof(int)); /*il vettore in cui costruire il tragitto. Inizialmente si era pensato di inizializzarlo a 0 poichè nessun nodo ha nome "0"
+                                        ma tale operazione sarebbe stata inutile poichè ogni campo non sovrascritto viene deallocato. Inizializzare avrebbe
+                                        richiesto inutilmente un tempo lineare*/
+                                    /*OSS: è lungo uno in più perchè la prima casella contiene la distanza minima tra src e dst*/
+
+  /*minHeap dovrà rappresentare gli archi del grafo*/
+  minHeap = NuovomHeap(V);
+
+  /*inizializzazione dello heap e del vettore delle distanze*/
+  for (v = 0; v < V; v++){
+      dist[v] = INF;
+      minHeap->array[v] = newElemHeap(v, dist[v]);
+      minHeap->pos[v] = v;
+  }
+
+  /*Aggiorna la distanza di src da se stesso a 0: sarà il primo nodo ad essere estratto dallo while*/
+  dist[src] = 0;
+  succ[src] = src+1; /*la destinazione è succeduta solo da se stessa*/
+  AggiornaDistanza(minHeap, src, dist[src]);
+
+  /*Inizializzo il numero di elementi "attivi" dello heap*/
+  minHeap->NumElementi = V;
+
+  /*il loop esegue fintanto che non ho estratto dallo heap la destinazione, e quindi trovato la sua distanza minima da src*/
+  while (isInmHeap(minHeap,dst))
+  {
+      /*estraggo il vertice più vicino all'origine tra quelli raggiungibili in un passo da vertici per cui ho già stabilito la distanza minima da src*/
+      MinimumElement = extractMin(minHeap);
+      u = MinimumElement->Vertice; /*salvo l'indice del vertice appena estratto per non dover guardare ogni volta in MinimumElement->Vertice*/
+
+      /*Aggiorno la distanza di tutti i nodi adiacenti al nodo di indice u scegliendo la minima tra la precedente e quella possibile passando da u*/
+      pCrawl = Rete->ListaNodi[u]; /*salvo la testa della lista di adiacenza di u per poi scorrerla*/
+      while (pCrawl != NULL){
+          v = pCrawl->indice - 1; /*tolgo uno perchè in indice ho il nome intuitivo del vertice (contato da 1), e devo farlo corrispondere agli indici delle strutture
+                                    in cui sono salvati i suoi dati (contate da 0)*/
+
+          // If shortest distance to v is not finalized yet, and distance to v
+          // through u is less than its previously calculated distance
+          /*Se non ho ancora stabilito la distanza minima definitiva && u fa parte della stessa componente connessa del grafo && la distanza di v è maggiore
+            di quella che avrebbe se raggiunto passando da u, aggiorno la distanza di v nel vettore ausiliario e nello heap*/
+          if (isInmHeap(minHeap, v) && dist[u] != INF && pCrawl->peso + dist[u] < dist[v]){
+              succ[v]=u+1;  /*modifico il predecessore di v+1 nel cammino inverso*/
+              dist[v] = dist[u] + pCrawl->peso;
+              AggiornaDistanza(minHeap, v, dist[v]);
+          }
+          pCrawl = pCrawl->fratello; /*scorro avanti nella lista di adiacenza*/
+      }
+  }
+
+  /*uso v per altro: la sua precedente funzione è esaurita*/
+  Tragitto[0]=dist[dst]; /*nella prima casella metto la distanza*/
+  v=1;                   /*ho un elemento in Tragitto*/
+  while(succ[dst]!=dst+1){  /*fintanto che il precedente di dst+1 nel cammino inverso è un nodo diverso da sè*/
+    Tragitto[v]=succ[dst];  /*metto tale nodo in coda al tragitto "dritto"*/
+    dst=Tragitto[v++]-1;      /*Modifico dst nel nodo appena aggiunto, poi incremento v (perchè ora Tragitto ha un elemento in più)*/
+  }
+  /*A questo punto ho v elementi diversi da 0 in Tragitto. posso riallocarlo in modo da togliere le caselle inutili. L'ultima casella che abbiamo modificato
+  contiene il nome del punto di partenza, che non ci serve. la poniamo a 0, che farà da identificatore del temine del vettore, poichè la sua lunghezza non è
+  passata a priori*/
+
+  Tragitto[v]=-1; /*la v+1-esima casella ha indice v e viene azzerata. Poi rialloco togliendo le caselle in fondo*/
+  Tragitto=realloc(Tragitto,(v+1)*sizeof(int));
+  return Tragitto;
+
 }

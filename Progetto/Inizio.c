@@ -62,18 +62,14 @@ int main (int argc, char *argv[])
 /*ora che l'ordine delle chiamate in ListaChiamate utile alla simulazione è stato salvato importando in tale ordine gli eventi, si ordinano
 in ordine alfabetico per il nome dei clienti, lo si stampa, e si libera la memoria: non ci serviranno più le chiamate in questa forma.*/
   QuickSort(ListaChiamate,0,NumChiamate-1);
-//  printclients(ListaChiamate,NumChiamate);
+  printclients(ListaChiamate,NumChiamate);
+/*ora devo ordinare le chiamate per durata del tragitto associato. */
   freecalls (ListaChiamate,NumChiamate);
 
   //printevent(ListaEventi);
 
   //printgraph(ReteStradale);
 
-  for(i=1;i<=ReteStradale->NumeroNodi;i++){
-    for(j=1;j<=i;j++){
-      printf("i=%d\tj=%d\t e la distanza minima sarebbe %d\n",i+1,j+1,dijkstra(ReteStradale,i,j));
-    }
-  }
 
 
   fclose(fcall);

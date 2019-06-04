@@ -69,7 +69,8 @@ struct _Viaggio{
   tempo OraPartenza;
   tempo OraArrivo;
   cash Premio;
-  int *ElencoNodi;
+  int *ElencoNodi; /*punta ad una regione di memoria allocata da DijkTragitto in cui la cella di indice 0 è la lunghezza del cammino minimo, successivamente ho
+                    i nodi Intermedi tra partenza e arrivo (e non questi estremi). L'array termina in -1, poichè la sua lunghezza non è nota a priori*/
   tempo Durata;
 };
 
@@ -144,4 +145,5 @@ ElementoHeap* extractMin(mHeap* minHeap);
 void AggiornaDistanza(mHeap* minHeap, int v, int dist);
 boolean isInmHeap(mHeap *minHeap, int v);
 int dijkstra(grafo* graph, int src, int dst);
+int *DijkTragitto(grafo *Rete, int src,int dst,int );
 #endif
