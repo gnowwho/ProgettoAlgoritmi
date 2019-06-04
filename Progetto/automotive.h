@@ -4,13 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 
 typedef int tempo;
 typedef int pos;
 typedef int cash;
 
-#define inf INT_MAX;
+#define INF INT_MAX
 
 #define boolean int
 #define TRUE  1
@@ -26,7 +27,7 @@ typedef int cash;
 
 struct Chiamata {
   tempo Ora;
-  char Nome[50];
+  char Nome[26];
   pos Partenza;
   pos Arrivo;
   tempo OraPartenza;
@@ -43,6 +44,7 @@ struct Veicolo {
   tempo AttivitaMax;
   tempo AutonomiaMax;
   tempo CAutonomia; /*complementare autonomia: tempo di movimento dall'ultima ricarica*/
+  tempo TToTMovimento;
   pos posizione;
   boolean Libera;
 };
@@ -76,11 +78,30 @@ struct _evento{
   tempo Ora;
   char  Tipo[50];
   int   Auto;
-  char  Nome[50];
+  char  Nome[26];
   viaggio *quest;
   event *next;
 };
 typedef event *ptevent;
+
+/*--------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/*Struttura per rappresentare un elemento dello heap*/
+typedef struct ElemHeap{
+    int Vertice;
+    int Peso;
+} ElementoHeap;
+
+/*Heap col Minimo*/
+typedef struct MinHeap{
+    int NumElementi;      /* Numero di elementi dello Heap attualmente presenti*/
+    int MaxElementi;  /*Numero massimo di elementi che lo Heap può contenere*/
+    int *pos;     /*vettore di interi lungo MaxElementi needed for AggiornaDistanza()*/
+    ElementoHeap **array;  /*puntatore alla regione di memoria dove terrò i puntatori
+                            agli elementi dello heap. Così sarà più facile aggiornarlo*/
+} mHeap;
+
+
+
 
 ptcall *getcalls (FILE *fp, int *hmcalls);
 
@@ -112,4 +133,15 @@ grafo *getgraph (FILE *fp);
 
 void printgraph (grafo *rete);
 
+/*----------------------------------------------------------------------------*/
+
+ElementoHeap* newElemHeap(int v, int dist);
+mHeap* NuovomHeap(int Num);
+void ScambiaElemHeap(ElementoHeap** a, ElementoHeap** b);
+void AggiornamHeap(mHeap* minHeap, int idx);
+int isEmpty(mHeap* minHeap);
+ElementoHeap* extractMin(mHeap* minHeap);
+void AggiornaDistanza(mHeap* minHeap, int v, int dist);
+boolean isInmHeap(mHeap *minHeap, int v);
+int dijkstra(grafo* graph, int src, int dst);
 #endif

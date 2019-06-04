@@ -1,0 +1,4 @@
+"Progetto\\a.exe":
+	path: "Progetto\\a.exe"
+	args: ["01-c* 01-r* 01-v*"]
+	cwd: "Progetto"

@@ -26,6 +26,7 @@ int main (int argc, char *argv[])
   int NumChiamate;
   ptevent ListaEventi;
   grafo *ReteStradale;
+  int i,j;
 
   /* Parte esecutiva */
   InterpretaLineaComando(argc,argv,chiamate,rete,veicoli);
@@ -64,10 +65,15 @@ in ordine alfabetico per il nome dei clienti, lo si stampa, e si libera la memor
 //  printclients(ListaChiamate,NumChiamate);
   freecalls (ListaChiamate,NumChiamate);
 
-  printevent(ListaEventi);
+  //printevent(ListaEventi);
 
-  printgraph(ReteStradale);
+  //printgraph(ReteStradale);
 
+  for(i=1;i<=ReteStradale->NumeroNodi;i++){
+    for(j=1;j<=i;j++){
+      printf("i=%d\tj=%d\t e la distanza minima sarebbe %d\n",i+1,j+1,dijkstra(ReteStradale,i,j));
+    }
+  }
 
 
   fclose(fcall);
