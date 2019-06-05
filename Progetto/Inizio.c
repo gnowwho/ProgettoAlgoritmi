@@ -21,11 +21,11 @@ int main (int argc, char *argv[])
   /* Parte dichiarativa */
   char chiamate[ROW_LENGTH],rete[ROW_LENGTH],veicoli[ROW_LENGTH];
   FILE *fcall, *fnet, *fcar;
-  /*grafo *graph;*/
   ptcall *ListaChiamate;
   int NumChiamate;
   ptevent ListaEventi;
   grafo *ReteStradale;
+  ParcoAuto *ListaTaxi;
   //int i,j;
 
   /* Parte esecutiva */
@@ -63,16 +63,22 @@ int main (int argc, char *argv[])
 in ordine alfabetico per il nome dei clienti, lo si stampa, e si libera la memoria: non ci serviranno più le chiamate in questa forma.*/
   QuickSort(ListaChiamate,0,NumChiamate-1);
   printclients(ListaChiamate,NumChiamate);
-  PrintChiamViaggio(ListaChiamate,ReteStradale,NumChiamate);
+
 /*ora devo ordinare le chiamate per durata del tragitto associato. */
-  freecalls (ListaChiamate,NumChiamate);
+  PrintChiamViaggio(ListaChiamate,ReteStradale,NumChiamate);
+
+/*Devo creare e distribuire le auto, poi stampare la loro posizione*/
+  ListaTaxi=CreaAutomobili(fcar);
+  PlaceCar(ReteStradale,ListaTaxi);
+  StampaPosAuto(ListaTaxi);
+
 
   //printevent(ListaEventi);
 
   //printgraph(ReteStradale);
 
-
-
+  Rottama(ListaTaxi);/*Dealloca il parco macchine e le macchine*/
+  freecalls(ListaChiamate,NumChiamate);/*dealloca anche i viaggi associati*/
   fclose(fcall);
   fclose(fnet);
   fclose(fcar);

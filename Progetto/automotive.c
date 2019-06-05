@@ -481,6 +481,58 @@ void AggMaxHeapViaggi(Heap* maxHeap, int idx,ptcall *chiamate){
     }
 }
 
+/*Versione modificata della funzione precedente che tiene conto del secondo criterio dell'indice del nodo nel posizionamento delle auto
+OSS: Va bene ogni qual volta l'indice degli elementi nello heap è il secondo criterio di ordinamento (più basso ha priorità)*/
+void AggMaxHeapAuto(Heap* maxHeap, int idx){
+  int massimo, sin, dex;
+  ElementoHeap *ElemMax;
+  ElementoHeap *Elemidx;
+
+  massimo = idx;
+  sin = 2 * idx + 1;
+  dex = 2 * idx + 2;
+
+  /*La prima condizione serve ad assicurarsi che l'elemento in posizione sin sia un figlio e non sia esterno allo heap*/
+  if (  (sin < maxHeap->NumElementi)&&
+        (     (maxHeap->array[sin]->Peso > maxHeap->array[massimo]->Peso)||
+              (     (maxHeap->array[sin]->Peso == maxHeap->array[massimo]->Peso)&&
+                    (maxHeap->array[sin]->Vertice < maxHeap->array[massimo]->Vertice)
+              )
+        )
+      ){
+
+    massimo = sin;
+  }
+
+  /*Simile a sopra*/
+  if (  (dex < maxHeap->NumElementi)&&
+        (     (maxHeap->array[dex]->Peso > maxHeap->array[massimo]->Peso)||
+              (     (maxHeap->array[dex]->Peso == maxHeap->array[massimo]->Peso)&&
+                    (maxHeap->array[dex]->Vertice < maxHeap->array[massimo]->Vertice)
+              )
+        )
+      ){
+
+      massimo = dex;
+    }
+
+  /*Se questa porzione di heap è già corretta non aggiorna nè questa nè i suoi discendenti*/
+  if (massimo != idx){
+      /*copio gli elementi da scambiare*/
+      ElemMax = maxHeap->array[massimo];
+      Elemidx = maxHeap->array[idx];
+
+      /*scambio le loro posizioni*/
+      maxHeap->pos[ElemMax->Vertice] = idx;
+      maxHeap->pos[Elemidx->Vertice] = massimo;
+
+      /*li scambio effettivamente*/
+      ScambiaElemHeap(&maxHeap->array[massimo], &maxHeap->array[idx]);
+      /*richiamo la funzione nel nodo eventualmente modificato*/
+      AggMaxHeapAuto(maxHeap, massimo);
+    }
+}
+
 /*Rende un array salvato in un Heap uno Heap al Massimo. Usa come lunghezza quella "Attiva"*/
 void BuildMaxHeap(Heap* maxHeap){
   int i;
@@ -498,6 +550,16 @@ void BuildMaxHeapViaggi(Heap* maxHeap, ptcall *chiamate){
   /*Lo Heap è supposto di lunghezza positiva: la divisione intera quindi arrotonda per difetto*/
   for(i=(maxHeap->NumElementi-1)/2;i>=0;i--){     /*tolgo 1 perchè gli indici dei vettori contano da 0*/
     AggMaxHeapViaggi(maxHeap,i,chiamate);
+  }
+}
+
+/*Versione modificata della precedente funzione per tener conto del secondo criterio di ordinamento nella distribuzione delle auto*/
+void BuildMaxHeapAuto(Heap* maxHeap){
+  int i;
+
+  /*Lo Heap è supposto di lunghezza positiva: la divisione intera quindi arrotonda per difetto*/
+  for(i=(maxHeap->NumElementi-1)/2;i>=0;i--){     /*tolgo 1 perchè gli indici dei vettori contano da 0*/
+    AggMaxHeapAuto(maxHeap,i);
   }
 }
 
@@ -587,6 +649,32 @@ ElementoHeap* extractMaxViaggi(Heap* maxHeap,ptcall* Chiamate){
     return Primo;
 }
 
+/*Simile alla precedente ma tiene conto del secondo criterio di ordinamento sul posizionamento delle auto*/
+ElementoHeap* extractMaxAuto(Heap* maxHeap){
+  ElementoHeap* Primo;
+  ElementoHeap* Ultimo;
+
+    if (isEmpty(maxHeap))
+        return NULL;
+
+    /*salva il primo elemento*/
+    Primo = maxHeap->array[0];
+
+    /*Lo sostituisce con l'attuale ultimo*/
+    Ultimo = maxHeap->array[maxHeap->NumElementi-1];
+    maxHeap->array[0] = Ultimo;
+
+    /*aggiorna le posizioni del nuovo primo elemento e dell'elemento estratto nel vettore delle posizioni*/
+    maxHeap->pos[Primo->Vertice] = maxHeap->NumElementi-1;
+    maxHeap->pos[Ultimo->Vertice] = 0;
+
+    /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
+    (maxHeap->NumElementi)--;
+    AggMaxHeapAuto(maxHeap, 0);
+
+    return Primo;
+}
+
 /*Modifica la distanza (si intende che viene ridotta) di un vertice di indice v nello heap,
  e poi lo fa salire di tante posizioni quante sono necessarie a mantenere la struttura di heap.
  Usa pos[] per trovare l'indice attuale di v nello heap, così non serve scorrere per contare la posizione, ma lo fa in tempo costante*/
@@ -621,6 +709,18 @@ boolean isInmHeap(Heap *minHeap, int v){
     else{
        return FALSE;
      }
+}
+
+/*Funzione che dealloca uno heap, suppoendo che gli elementi "non attivi" siano stati deallocati dopo l'uso quando sono staati estratti*/
+void freeHeap(Heap *vHeap){
+  int v;
+  /*per deallocare gli elementi dello heap non ancora deallocati senza rischiare di liberare la stessa cella due volte chiamo free solo sulle celle "ancora attive"*/
+  for(v=0;v<vHeap->NumElementi;v++){/*Nello heap ho ancora NumElementi elementi allocati*/
+    free(vHeap->array[v]);
+  }
+  free(vHeap->array);
+  free(vHeap->pos);
+  free(vHeap);
 }
 
 /*Implementazione dell'algoritmo di Dijkstra per la risoluzione del problema del cammino minimo tra una coppia di nodi dati. Questa Implementazione ha complessità
@@ -691,12 +791,9 @@ in quanto richiede una sola operazione invece di O(n) controlli*/
   La metto in u, il cui precedente valore non serve più*/
   u=dist[dst];
   free(dist);
-  /*per deallocare gli elementi dello heap non ancora deallocati senza rischiare di liberare la stessa cella due volte chiamo free solo sulle celle "ancora attive"*/
-  for(v=0;v<minHeap->NumElementi;v++){/*v non serve più. Nello heap ho ancora NumElementi elementi allocati*/
-    free(minHeap->array[v]);
-  }
-  free(minHeap->array);
-  free(minHeap);
+
+  /*libero il resto dello heap*/
+  freeHeap(minHeap);
 
   return u;
 }
@@ -768,13 +865,7 @@ int *DijkTragitto(grafo *Rete, int src,int dst){
   }
 
   /*Dealloco lo Heap che non serve più*/
-  /*per deallocare gli elementi dello heap non ancora deallocati senza rischiare di liberare la stessa cella due volte chiamo free solo sulle celle "ancora attive"*/
-  for(v=0;v<minHeap->NumElementi;v++){/*v non serve più. Nello heap ho ancora NumElementi elementi allocati*/
-    free(minHeap->array[v]);
-  }
-  free(minHeap->array);
-  free(minHeap);
-
+  freeHeap(minHeap);
 
   /*uso v per altro: la sua precedente funzione è esaurita*/
   Tragitto[0]=dist[dst]; /*nella prima casella metto la distanza*/
@@ -834,9 +925,113 @@ void PrintChiamViaggio (ptcall *Chiamate, grafo *Rete, int NumChiamate){
     free(MaximumElement);
   }
 
-  free(CHeap->pos);
-  /*Gli elementi puntati dagli elementi di array sono già stati estratti e deallocati uno per uno dallo while*/
-  free(CHeap->array);
-  free(CHeap);
+  /*Gli elementi puntati dagli elementi di array sono già stati estratti e deallocati uno per uno dallo while ma non è un problema per freeHeap*/
+  freeHeap(CHeap);
 
+}
+
+/*Funzione che crea il Parco Auto specificato dal file passato in argomento e restituisce un puntatore ad esso*/
+ParcoAuto *CreaAutomobili (FILE *fp){
+  int Numero, TMax, Autonomia, TRicarica;
+  int i;
+  ParcoAuto *PAuto;
+
+  /*Leggo e parso il file*/
+  fscanf(fp,"%d %d %d %d ",&Numero,&TMax,&Autonomia,&TRicarica);
+
+  /*Alloco memoria per il parco auto*/
+  PAuto=malloc(sizeof(ParcoAuto));
+  if(PAuto == NULL){
+    printf("Errore allocazione Parco Auto: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  /*Alloco memoria per l'array delle singole auto*/
+  PAuto->Taxi=malloc(sizeof(car*)*Numero);
+  if(PAuto->Taxi == NULL){
+    printf("Errore allocazione Puntatori ai singoli Taxi: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  /*Alloco memoria per le singole auto e compilo i loro campi. Questa operazione non ha una sottofunzione dedicata data la similitudine dell'inizializzazione delle auto*/
+  for(i=0;i<Numero;i++){
+    PAuto->Taxi[i]=malloc(sizeof(car));
+    if(PAuto->Taxi[i] == NULL){
+      printf("Errore allocazione Auto %d-esima: %s\n",i+1, strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+    PAuto->Taxi[i]->Numero=i+1;
+    PAuto->Taxi[i]->CAutonomia=0;
+    PAuto->Taxi[i]->TToTMovimento=0;
+    PAuto->Taxi[i]->posizione=1; /*Verrà aggiornata successivamente, ma quella della prima auto è già fissata*/
+    PAuto->Taxi[i]->Libera=TRUE;
+    PAuto->Taxi[i]->FineRicarica=0;
+  }
+
+  /*Compilo i restanti campi di PAuto, dato che sarebbe stato inutile farlo prima in caso di errori di allocazione successivi*/
+  PAuto->NumeroAuto=Numero;
+  PAuto->AttivitaMax=TMax;
+  PAuto->AutonomiaMax=Autonomia;
+  PAuto->TempoRicarica=TRicarica;
+
+}
+
+/*Funzione ecologica che dealloca lo spazio occupato dalle auto*/
+void Rottama(ParcoAuto *PAuto){
+int i;
+
+  for(i=0;i<PAuto->NumeroAuto;i++){
+    free(PAuto->Taxi[i]);
+  }
+  free(PAuto->Taxi);
+  free(PAuto);
+
+}
+
+/*Funzione che riceve in argomento il parco auto e la rete stradale e distribuisce i Taxi secondo le specifiche*/
+void PlaceCar (grafo *Rete, ParcoAuto *PAuto){
+int i,j,n,peep;
+Heap *maxHeap;
+ElementoHeap *NodoScelto;
+  /*Ricordiamo che per assegnamento il taxi in cella 0, di Numero 1, è già assegnato alla sede (nodo 1). annche gli altri, ma non per molto*/
+
+  /*Creo uno Heap Al Massimo delle distanze di ogni Nodo dalla sede*/
+  n=Rete->NumeroNodi;
+  maxHeap=NuovoHeap(n);
+  maxHeap->NumElementi=n;
+  for(i=0;i<n;i++){
+    maxHeap->array[i] = newElemHeap(n-i-1,dijkstra(Rete,1,n-i)); /*i pesi iniziali sono le distanze dei nodi dall'origine. vertice j corrisponde a distanza 1,j+1*/
+    maxHeap->pos[i] = n-i-1;
+  }
+  /*Ho Riempito lo Heap al contrario, mantenendo la consueta corrispondenza tra pos[] e ->Vertice. In questo modo ho l'elemento dello heap che rappresenta la distanza di 1 da se in fondo*/
+  maxHeap->NumElementi--; /*tolgo l'ultimo nodo da quelli attivi*/
+
+  /*Posso ora creare lo heap al massimo della distanza dei nodi dalla sede*/
+  BuildMaxHeapAuto(maxHeap);
+
+  for(i=1;i<PAuto->NumeroAuto;i++){ /*Parto da i=1 così da non toccare la prima auto, già associata alla sede*/
+    NodoScelto=extractMaxAuto(maxHeap);
+    n=NodoScelto->Vertice; /*a Vertice v corrisponde la distanza dal nodo di nome v+1*/
+                              /*n è il nome del nodo scelto a questo giro*/
+    PAuto->Taxi[i]->posizione=n+1; /*l'auto i-esima ha posizione nel nodo n*/
+    for(j=0;j<maxHeap->NumElementi;j++){
+      peep=dijkstra(Rete,n+1,(maxHeap->array[j]->Vertice)+1);
+      maxHeap->array[j]->Peso=maxHeap->array[j]->Peso+peep; /*Incremento il peso di ogni nodo non scelto della loro distanza dal nodo scelto*/
+    }
+    free(NodoScelto); /*Dealloco il nodo estratto, non più utile*/
+    BuildMaxHeapAuto(maxHeap); /*ricompongo lo heap: dato che i pesi sono cambiati radicalmente devo ricomporlo completamente*/
+  }
+
+  /*Qui ogni auto ha una sua posizione, dealloco lo Heap*/
+  freeHeap(maxHeap);
+
+}
+
+void StampaPosAuto(ParcoAuto *PAuto){
+  int i;
+
+  for(i=0; i<PAuto->NumeroAuto; i++){
+    printf("%d ",PAuto->Taxi[i]->posizione);
+  }
+  printf("\n");
 }

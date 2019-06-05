@@ -47,13 +47,20 @@ typedef call *ptcall;
 typedef struct Veicolo car;
 struct Veicolo {
   int Numero;
+  tempo CAutonomia; /*complementare autonomia: tempo di movimento dall'ultima ricarica*/
+  tempo TToTMovimento; /*tempo totale movimento*/
+  pos posizione; /*Nome del nodo (conto da 1)*/
+  boolean Libera;
+  tempo FineRicarica;
+};
+
+typedef struct _ParcoAuto{
+  car **Taxi;
+  int NumeroAuto;
   tempo AttivitaMax;
   tempo AutonomiaMax;
-  tempo CAutonomia; /*complementare autonomia: tempo di movimento dall'ultima ricarica*/
-  tempo TToTMovimento;
-  pos posizione;
-  boolean Libera;
-};
+  tempo TempoRicarica;
+}ParcoAuto;
 
 typedef struct _Arco arco;
 struct _Arco{
@@ -133,19 +140,38 @@ void printgraph (grafo *rete);
 ElementoHeap* newElemHeap(int v, int dist);
 Heap* NuovoHeap(int Num);
 void ScambiaElemHeap(ElementoHeap** a, ElementoHeap** b);
+int isEmpty(Heap* Heap);
+void freeHeap(Heap *vHeap);
+
 void AggMinHeap(Heap* minHeap, int idx);
 void BuildminHeap(Heap* minHeap);
-void AggMaxHeap(Heap* maxHeap, int idx);
-void AggMaxHeapViaggi(Heap* maxHeap, int idx,ptcall *chiamate);
-void BuildMaxHeap(Heap* maxHeap);
-void BuildMaxHeapViaggi(Heap* maxHeap, ptcall *chiamate);
-int isEmpty(Heap* Heap);
 ElementoHeap* extractMin(Heap* minHeap);
-ElementoHeap* extractMax(Heap* maxHeap);
-ElementoHeap* extractMaxViaggi(Heap* maxHeap,ptcall* Chiamate);
 void AggiornaDistanza(Heap* minHeap, int v, int dist);
 boolean isInmHeap(Heap *minHeap, int v);
+
+void AggMaxHeap(Heap* maxHeap, int idx);
+void BuildMaxHeap(Heap* maxHeap);
+ElementoHeap* extractMax(Heap* maxHeap);
+
+/*Varianti Costruzione Heap al massimo*/
+void AggMaxHeapViaggi(Heap* maxHeap, int idx,ptcall *chiamate);
+void AggMaxHeapAuto(Heap* maxHeap, int idx);
+
+void BuildMaxHeapViaggi(Heap* maxHeap, ptcall *chiamate);
+void BuildMaxHeapAuto(Heap* maxHeap);
+
+ElementoHeap* extractMaxViaggi(Heap* maxHeap,ptcall* Chiamate);
+ElementoHeap* extractMaxAuto(Heap* maxHeap);
+/*Fine varianti*/
+
 int dijkstra(grafo* graph, int src, int dst);
 int *DijkTragitto(grafo *Rete, int src,int dst);
 void PrintChiamViaggio (ptcall *Chiamate, grafo *Rete, int NumChiamate);
+
+ParcoAuto *CreaAutomobili (FILE *fp);
+void Rottama(ParcoAuto *PAuto);
+void PlaceCar (grafo *Rete, ParcoAuto *PAuto);
+void StampaPosAuto(ParcoAuto *PAuto);
+
+
 #endif
