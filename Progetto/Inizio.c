@@ -26,7 +26,7 @@ int main (int argc, char *argv[])
   int NumChiamate;
   ptevent ListaEventi;
   grafo *ReteStradale;
-  int i,j;
+  //int i,j;
 
   /* Parte esecutiva */
   InterpretaLineaComando(argc,argv,chiamate,rete,veicoli);
@@ -63,6 +63,7 @@ int main (int argc, char *argv[])
 in ordine alfabetico per il nome dei clienti, lo si stampa, e si libera la memoria: non ci serviranno più le chiamate in questa forma.*/
   QuickSort(ListaChiamate,0,NumChiamate-1);
   printclients(ListaChiamate,NumChiamate);
+  PrintChiamViaggio(ListaChiamate,ReteStradale,NumChiamate);
 /*ora devo ordinare le chiamate per durata del tragitto associato. */
   freecalls (ListaChiamate,NumChiamate);
 
