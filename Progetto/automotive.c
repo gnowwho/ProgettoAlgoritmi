@@ -391,7 +391,6 @@ void AggMaxHeap(Heap* maxHeap, int idx){
   ElementoHeap *ElemMax;
   ElementoHeap *Elemidx;
 
-
   massimo = idx;
   sin = 2 * idx + 1;
   dex = 2 * idx + 2;
@@ -422,13 +421,83 @@ void AggMaxHeap(Heap* maxHeap, int idx){
     }
 }
 
+/*Versione modificata della funzione precedente che tiene conto del secondo criterio dell'ora di chiamata crescente*/
+void AggMaxHeapViaggi(Heap* maxHeap, int idx,ptcall *chiamate){
+  int massimo, sin, dex;
+  ElementoHeap *ElemMax;
+  ElementoHeap *Elemidx;
+  int check;
+
+  massimo = idx;
+  sin = 2 * idx + 1;
+  dex = 2 * idx + 2;
+
+  /*La prima condizione serve ad assicurarsi che l'elemento in posizione sin sia un figlio e non sia esterno allo heap*/
+  if (  (sin < maxHeap->NumElementi)&&
+        (     (maxHeap->array[sin]->Peso > maxHeap->array[massimo]->Peso)||
+              (     (maxHeap->array[sin]->Peso == maxHeap->array[massimo]->Peso)&&
+                    (chiamate[maxHeap->array[sin]->Vertice]->Ora < chiamate[maxHeap->array[massimo]->Vertice]->Ora)
+              )
+        )
+      ){
+    check=maxHeap->array[massimo]->Vertice;
+    check=chiamate[maxHeap->array[massimo]->Vertice]->Ora;
+    check=maxHeap->array[sin]->Vertice;
+    check=chiamate[maxHeap->array[sin]->Vertice]->Ora;
+
+
+    massimo = sin;
+  }
+
+  /*Simile a sopra*/
+  if (  (dex < maxHeap->NumElementi)&&
+        (     (maxHeap->array[dex]->Peso > maxHeap->array[massimo]->Peso)||
+              (     (maxHeap->array[dex]->Peso == maxHeap->array[massimo]->Peso)&&
+                    (chiamate[maxHeap->array[dex]->Vertice]->Ora < chiamate[maxHeap->array[massimo]->Vertice]->Ora)
+              )
+        )
+      ){
+      check=chiamate[maxHeap->array[massimo]->Vertice]->Ora;
+      check=maxHeap->array[dex]->Vertice;
+      check=chiamate[maxHeap->array[dex]->Vertice]->Ora;
+
+      massimo = dex;
+    }
+
+  /*Se questa porzione di heap è già corretta non aggiorna nè questa nè i suoi discendenti*/
+  if (massimo != idx){
+      /*copio gli elementi da scambiare*/
+      ElemMax = maxHeap->array[massimo];
+      Elemidx = maxHeap->array[idx];
+
+      /*scambio le loro posizioni*/
+      maxHeap->pos[ElemMax->Vertice] = idx;
+      maxHeap->pos[Elemidx->Vertice] = massimo;
+
+      /*li scambio effettivamente*/
+      ScambiaElemHeap(&maxHeap->array[massimo], &maxHeap->array[idx]);
+      /*richiamo la funzione nel nodo eventualmente modificato*/
+      AggMaxHeapViaggi(maxHeap, massimo, chiamate);
+    }
+}
+
 /*Rende un array salvato in un Heap uno Heap al Massimo. Usa come lunghezza quella "Attiva"*/
 void BuildMaxHeap(Heap* maxHeap){
   int i;
 
   /*Lo Heap è supposto di lunghezza positiva: la divisione intera quindi arrotonda per difetto*/
-  for(i=maxHeap->NumElementi/2;i>0;i--){
+  for(i=maxHeap->NumElementi/2;i>=0;i--){
     AggMaxHeap(maxHeap,i);
+  }
+}
+
+/*Versione modificata della precedente funzione per tener conto del secondo criterio di ordinamento sull'arrivo della chiamata*/
+void BuildMaxHeapViaggi(Heap* maxHeap, ptcall *chiamate){
+  int i;
+
+  /*Lo Heap è supposto di lunghezza positiva: la divisione intera quindi arrotonda per difetto*/
+  for(i=(maxHeap->NumElementi-1)/2;i>=0;i--){     /*tolgo 1 perchè gli indici dei vettori contano da 0*/
+    AggMaxHeapViaggi(maxHeap,i,chiamate);
   }
 }
 
@@ -488,6 +557,32 @@ ElementoHeap* extractMax(Heap* maxHeap){
     /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
     (maxHeap->NumElementi)--;
     AggMaxHeap(maxHeap, 0);
+
+    return Primo;
+}
+
+/*Simile alla precedente ma tiene conto del secondo criterio di ordinamento sui viaggi*/
+ElementoHeap* extractMaxViaggi(Heap* maxHeap,ptcall* Chiamate){
+  ElementoHeap* Primo;
+  ElementoHeap* Ultimo;
+
+    if (isEmpty(maxHeap))
+        return NULL;
+
+    /*salva il primo elemento*/
+    Primo = maxHeap->array[0];
+
+    /*Lo sostituisce con l'attuale ultimo*/
+    Ultimo = maxHeap->array[maxHeap->NumElementi-1];
+    maxHeap->array[0] = Ultimo;
+
+    /*aggiorna le posizioni del nuovo primo elemento e dell'elemento estratto nel vettore delle posizioni*/
+    maxHeap->pos[Primo->Vertice] = maxHeap->NumElementi-1;
+    maxHeap->pos[Ultimo->Vertice] = 0;
+
+    /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
+    (maxHeap->NumElementi)--;
+    AggMaxHeapViaggi(maxHeap, 0,Chiamate);
 
     return Primo;
 }
@@ -697,8 +792,8 @@ int *DijkTragitto(grafo *Rete, int src,int dst){
 
   free(succ); /*Ho terminato l'utilizzo di succ, lo dealloco*/
 
-  Tragitto[v+1]=-1; /*la v+2-esima casella ha indice v+1 e viene posta a -1: Sto aggiungendo un terminatore dopo l'ultimo nodo, quello di partenza. Poi rialloco togliendo le caselle in fondo*/
-  Tragitto=realloc(Tragitto,(v+2)*sizeof(int));
+  Tragitto[v]=-1; /*la v+1-esima casella ha indice v e viene posta a -1: Sto aggiungendo un terminatore dopo l'ultimo nodo, quello di partenza. Poi rialloco togliendo le caselle in fondo*/
+  Tragitto=realloc(Tragitto,(v+1)*sizeof(int));
 
   return Tragitto;
 
@@ -721,15 +816,16 @@ void PrintChiamViaggio (ptcall *Chiamate, grafo *Rete, int NumChiamate){
       CHeap->pos[i] = i;
   }
 
-  /*Creo uno heap sulle distanze dei cammini*/
-  BuildMaxHeap(CHeap);
+
+  /*Creo uno heap sulle distanze dei cammini, tenedo conto del criterio di priorità dell'ordine di arrivo delle chiamate in caso di parità*/
+  BuildMaxHeapViaggi(CHeap,Chiamate);
 
   /*Stampo le chiamate, come richieste, rimuovendo di volta in volta l'elemento corrispondente dello heap e aggiornandolo*/
   while(!isEmpty(CHeap)){ /*Finchè ho chiamate nello Heap*/
-    MaximumElement=extractMax(CHeap);/*Estraggo l'elemento corrispondente al cammino più lungo*/
+    MaximumElement=extractMaxViaggi(CHeap,Chiamate);/*Estraggo l'elemento corrispondente al cammino più lungo*/
 
     i=MaximumElement->Vertice;/*salvo il suo vertice*/
-    printf("%d %s",Chiamate[i]->Ora,Chiamate[i]->Nome); /*stampo ora e nome della chiamata corrispondente*/
+    printf("%d\t %s\t\t",Chiamate[i]->Ora,Chiamate[i]->Nome); /*stampo ora e nome della chiamata corrispondente*/
 
     for(j=0;Chiamate[i]->Richiesta->ElencoNodi[j]>0;j++){ /*finchè non ho trovato il carattere di terminazione di ElencoNodi stampo il contenuto*/
       printf(" %d",Chiamate[i]->Richiesta->ElencoNodi[j]);/*ogni elemento è un intero. il primo la distanza, il resto i nodi del tragitto, estremi compresi*/
