@@ -152,15 +152,23 @@ ptevent AddEvent (ptevent pne, ptevent poe){
   return pne;
 }
 
+/*Crea un evento vuoto non inizializzato*/
+ptevent NewEvent(){
+  ptevent ev;
+
+  ev=malloc(sizeof(event));
+  if(ev == NULL){
+    printf("Errore allocazione Evento: %s\n",strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  return ev;
+}
+
 /*a partire da un puntatore a chiamata genera un evento corrispondente a quella chiamata, e restituisce un puntatore ad esso*/
 ptevent CallToEvent (ptcall tel){
   ptevent evchiamata;
 
-  evchiamata=malloc(sizeof(event));
-  if(evchiamata == NULL){
-    printf("Errore allocazione Lista eventi: %s\n",strerror(errno));
-    exit(EXIT_FAILURE);
-  }
+  evchiamata=NewEvent();
   evchiamata->quest=tel->Richiesta;
   evchiamata->Ora=tel->Ora;
   strcpy(evchiamata->Tipo,"CHIAMATA");
@@ -374,7 +382,57 @@ void AggMinHeap(Heap* minHeap, int idx){
     }
 }
 
-/*Non Usata*/
+/*Versione modificata della funzione precedente che tiene conto dell'indice degli elementi nello heap come secondo criterio di ordinamento (più basso ha priorità)*/
+void AggminHeapAuto(Heap* minHeap, int idx){
+  int minimo, sin, dex;
+  ElementoHeap *ElemMin;
+  ElementoHeap *Elemidx;
+
+  minimo = idx;
+  sin = 2 * idx + 1;
+  dex = 2 * idx + 2;
+
+  /*La prima condizione serve ad assicurarsi che l'elemento in posizione sin sia un figlio e non sia esterno allo heap*/
+  if (  (sin < minHeap->NumElementi)&&
+        (     (minHeap->array[sin]->Peso < minHeap->array[minimo]->Peso)||
+              (     (minHeap->array[sin]->Peso == minHeap->array[minimo]->Peso)&&
+                    (minHeap->array[sin]->Vertice < minHeap->array[minimo]->Vertice)
+              )
+        )
+      ){
+
+    minimo = sin;
+  }
+
+  /*Simile a sopra*/
+  if (  (dex < minHeap->NumElementi)&&
+        (     (minHeap->array[dex]->Peso < minHeap->array[minimo]->Peso)||
+              (     (minHeap->array[dex]->Peso == minHeap->array[minimo]->Peso)&&
+                    (minHeap->array[dex]->Vertice < minHeap->array[minimo]->Vertice)
+              )
+        )
+      ){
+
+      minimo = dex;
+    }
+
+  /*Se questa porzione di heap è già corretta non aggiorna nè questa nè i suoi discendenti*/
+  if (minimo != idx){
+      /*copio gli elementi da scambiare*/
+      ElemMin = minHeap->array[minimo];
+      Elemidx = minHeap->array[idx];
+
+      /*scambio le loro posizioni*/
+      minHeap->pos[ElemMin->Vertice] = idx;
+      minHeap->pos[Elemidx->Vertice] = minimo;
+
+      /*li scambio effettivamente*/
+      ScambiaElemHeap(&minHeap->array[minimo], &minHeap->array[idx]);
+      /*richiamo la funzione nel nodo eventualmente modificato*/
+      AggminHeapAuto(minHeap, minimo);
+    }
+}
+
 /*Rende un array salvato in un Heap uno Heap al Minimo. Usa come lunghezza quella "Attiva"*/
 void BuildminHeap(Heap* minHeap){
   int i;
@@ -382,6 +440,16 @@ void BuildminHeap(Heap* minHeap){
   /*Lo Heap è supposto di lunghezza positiva: la divisione intera quindi arrotonda per difetto*/
   for(i=minHeap->NumElementi/2;i>0;i--){
     AggMinHeap(minHeap,i);
+  }
+}
+
+/*Versione modificata della precedente funzione per tener conto del secondo criterio di ordinamento sugli indici dei vertici degli elementi*/
+void BuildminHeapAuto(Heap* minHeap){
+  int i;
+
+  /*Lo Heap è supposto di lunghezza positiva: la divisione intera quindi arrotonda per difetto*/
+  for(i=(minHeap->NumElementi-1)/2;i>=0;i--){     /*tolgo 1 perchè gli indici dei vettori contano da 0*/
+    AggminHeapAuto(minHeap,i);
   }
 }
 
@@ -592,6 +660,32 @@ ElementoHeap* extractMin(Heap* minHeap){
     /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
     (minHeap->NumElementi)--;
     AggMinHeap(minHeap, 0);
+
+    return Primo;
+}
+
+/*Simile alla precedente ma tiene conto del secondo criterio di ordinamento sugli indici degli elementi dello heap*/
+ElementoHeap* extractminAuto(Heap* minHeap){
+  ElementoHeap* Primo;
+  ElementoHeap* Ultimo;
+
+    if (isEmpty(minHeap))
+        return NULL;
+
+    /*salva il primo elemento*/
+    Primo = minHeap->array[0];
+
+    /*Lo sostituisce con l'attuale ultimo*/
+    Ultimo = minHeap->array[minHeap->NumElementi-1];
+    minHeap->array[0] = Ultimo;
+
+    /*aggiorna le posizioni del nuovo primo elemento e dell'elemento estratto nel vettore delle posizioni*/
+    minHeap->pos[Primo->Vertice] = minHeap->NumElementi-1;
+    minHeap->pos[Ultimo->Vertice] = 0;
+
+    /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
+    (minHeap->NumElementi)--;
+    AggminHeapAuto(minHeap, 0);
 
     return Primo;
 }
@@ -916,7 +1010,7 @@ void PrintChiamViaggio (ptcall *Chiamate, grafo *Rete, int NumChiamate){
     MaximumElement=extractMaxViaggi(CHeap,Chiamate);/*Estraggo l'elemento corrispondente al cammino più lungo*/
 
     i=MaximumElement->Vertice;/*salvo il suo vertice*/
-    printf("%d\t %s\t\t",Chiamate[i]->Ora,Chiamate[i]->Nome); /*stampo ora e nome della chiamata corrispondente*/
+    printf("%d %s",Chiamate[i]->Ora,Chiamate[i]->Nome); /*stampo ora e nome della chiamata corrispondente*/
 
     for(j=0;Chiamate[i]->Richiesta->ElencoNodi[j]>0;j++){ /*finchè non ho trovato il carattere di terminazione di ElencoNodi stampo il contenuto*/
       printf(" %d",Chiamate[i]->Richiesta->ElencoNodi[j]);/*ogni elemento è un intero. il primo la distanza, il resto i nodi del tragitto, estremi compresi*/
@@ -1027,6 +1121,7 @@ ElementoHeap *NodoScelto;
 
 }
 
+/*utility per stampare la posizione corrente di ogni auto*/
 void StampaPosAuto(ParcoAuto *PAuto){
   int i;
 
@@ -1034,4 +1129,185 @@ void StampaPosAuto(ParcoAuto *PAuto){
     printf("%d ",PAuto->Taxi[i]->posizione);
   }
   printf("\n");
+}
+
+/*utility per selezionare l'auto più adatta a servire il viaggio indicato. Ne restituisce un puntatore così che sia agevole modificare gli attributi della vettura. Suppone che le auto libere siano prime in elenco*/
+car *ScegliAuto(ParcoAuto *Pauto, grafo *Rete, evento *corsa, boolean *premio){
+  Heap *idleHeapPos, idleHeapNeg;
+  ElementoHeap *AutoScelta;
+  int i,j,Temp;
+
+  if(Pauto->AutoLibere == 0){ /*se non ho auto libere nessuna auto è adatta al servizio*/
+    return NULL;
+    }
+
+  ArrivoADestinazioneTemp = corsa->quest->OraPartenza + corsa->quest->ElencoNodi[0];/*tempo minimo teorico di soluzione del servizio*/
+  if(ArrivoADestinazioneTemp>corsa->quest->OraArrivo){/*se il servizio non è completabile neanche in tempo ottimale nessuna auto è adatta al servizio*/
+    return NULL;
+  }
+
+  /*indici=malloc(Pauto->AutoLibere*sizeof(int));
+  if(indici == NULL){
+    printf("Errore allocazione vettore in ScegliAuto: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }*/
+  AutoScelta=NULL;
+
+  /*Voglio fare ricerche a volte di massimo e a volte di minimo in uno heap, con comportamenti diversi sopra e sotto lo zero. quindi ne faccio due*/
+  idleHeapPos=NuovoHeap(Pauto->AutoLibere);
+  idleHeapNeg=NuovoHeap(Pauto->AutoLibere);
+
+  /*inizializzo idleHeapPos e idleHeapNeg*/
+  p=0;
+  n=0;
+  for(i=0;i<Pauto->NumeroAuto;i++){ /*valuto ogni auto libera e stabilisco quanto attenderebbe ferma in caso serva la corsa*/
+    if(Pauto->Taxi[i]->Libera==TRUE){
+      Temp = corsa->quest->OraPartenza - (dijkstra(Rete,Pauto->Taxi[i]->posizione,corsa->quest->Partenza)+corsa->Ora);
+      if(Temp < 0){ /*tempo di idle negativo*/
+        idleHeapNeg->array[n] = newElemHeap(i,Temp);
+        idleHeapNeg->pos[n] = n;
+        n++;
+      }
+      else{   /*tempo di idle positivo o nullo*/
+        idleHeapPos->array[p] = newElemHeap(i,Temp);
+        idleHeapPos->pos[p] = p;
+        p++;
+      }
+    }
+  }
+  idleHeapNeg->NumElementi=n+1;
+  idleHeapPos->NumElementi=p+1;
+
+  /*Avere tempo di idle positivo o nullo significa poter servire la chiamata perfettamente. il massimo negativo è altrimenti il miglio candidato per la prima condizione di scelta*/
+  /*Il primo criterio è equivalente su tutte le auto di idleHeapPos, quindi si ricorre subito al secondo e terzo. se al termine dell'analisi non si trova una soluzione si lavorerà sul secondo heap*/
+
+  /*qui di seguito si usano gli heap "Auto" in quanto automaticamente tengono conto del terzo criterio.*/
+  BuildminHeapAuto(idleHeapPos); /*la scelta migliore, se ammissibile, è quella col tempo di idle non negativo minore*/
+  /*le auto con idle positivo arrivano a destinazione esattamente nel minimo tempo possibile, già calcolato*/
+  while(idleHeapPos->NumElementi > 0){
+    AutoScelta=extractminAuto(idleHeapPos);
+    /*se l'elemento è adatto ho finito.  per essere adatto deve poter tornare in sede dopo il servizio*/
+    if(dijkstra(Pauto->Taxi[AutoScelta->Vertice]->posizione,corsa->quest->Partenza) + corsa->quest->ElencoNodi[0] + dijkstra(corsa->quest->Arrivo,1) + Pauto->Taxi[AutoScelta->Vertice]->CAutonomia <= Pauto->AutonomiaMax) {
+      freeHeap(idleHeapNeg);
+      freeHeap(idleHeapPos);
+      *premio=TRUE; /*tutte e sole le auto che possono ottenere il premio sono in idleHeapPos*/
+      Temp=AutoScelta->Vertice;
+      free(AutoScelta);
+      return Pauto->Taxi[Temp];    /*se arrivo a questa istruzione AutoScelta è libera, adatta a compiere il servizio ed è la migliore secondo tutti i criteri*/
+    }
+    else{ /*se l'elemento non è adatto lo butto*/
+      free(AutoScelta);
+    }
+  }
+  /*Se esco da questo while ma non dalla funzione è perchè nessun elemento ad idle positivo è valido. cerchiamone uno ad idle negativo*/
+  freeHeap(idleHeapPos);
+  *premio=FALSE; /*tutte e sole le auto che possono ottenere il premio sono in idleHeapPos*/
+  AutoScelta=NULL;/*La memoria collegata è già deallocata. lo reinizializzo in modo da non corrompere la memoria dopo*/
+
+  /*sul secondo heap valutiamo il primo criterio, osservando che una parità nel primo criterio è equivalente alla parità nel secondo poichè il cammino minimo è unico. Teniamo quindi in considerazione solo il primo ed il terzo criterio*/
+
+  /*qui di seguito si usano gli heap "Auto" in quanto automaticamente tengono conto del terzo criterio.*/
+  if(idleHeapNeg->NumElementi > 0) do {
+    free(AutoScelta);
+    AutoScelta=extractMaxAuto(idleHeapNeg);
+    }
+  /*scarto e ripeto fintanto che ho elementi e quello scelto NON va bene: non ha autonomia*/
+  }while((idleHeapNeg->NumElementi > 0)&&(dijkstra(Pauto->Taxi[AutoScelta->Vertice]->posizione,corsa->quest->Partenza) + corsa->quest->ElencoNodi[0] + dijkstra(corsa->quest->Arrivo,1) + Pauto->Taxi[AutoScelta->Vertice]->CAutonomia <= Pauto->AutonomiaMax))
+  freeHeap(idleHeapNeg);
+
+  /*BUT WAIT! il veicolo scelto potrebbe anche non andare bene perchè ci mette troppo. Ma se è così ogni veicolo successivo nello heap arriverebbe a destinazione ancora dopo, quindi controllo solo una volta e in caso butto tutto*/
+  if(corsa->quest->OraArrivo < (corsa->quest->OraPartenza - AutoScelta->Peso + corsa->quest->ElencoNodi[0]) ){
+    free(AutoScelta);
+    return NULL;
+  }
+
+  Temp=AutoScelta->Vertice;
+  free(AutoScelta);
+  return Pauto->Taxi[Temp];
+
+}
+
+/*gli unici eventi che possono avere lo stesso tipo senza numero auto corrispondente sono eventi chiamata, ma non ha senso usare questa funzione su due chiamate, quindi si ritiene sufficente limitarsi ai criteri di ora e tipo*/
+/*restituisce -1 se il primo precede il secondo, 1 altrimenti*/
+int ConfrontoEventi(ptevent evA, ptevent evB){
+  if (evA->Ora < evB->Ora){
+    return -1;
+  }
+  else if(evA->Ora > evB->Ora){
+    return 1;
+  } else if(strcmp(evA->Tipo,evB->Tipo)){
+    if((evA->Auto - evB->Auto) < 0){
+      return -1;
+    }
+    else return 1;
+  }
+  else if(strcmp(evA->Tipo,"FINE_RICARICA")){ /*so già che i tipi sono diversi a questo punto, quindi se A è un evento di fine ricarica, B ha per forza priorità minore*/
+    return -1
+  }
+  else if(strcmp(evA->Tipo,"CHIAMATA")){
+    return 1;
+  }
+  else if(strcmp(evA->Tipo,"RIENTRO_SEDE")){
+    if(strcmp(evB->Tipo,"FINE_RICARICA")){
+      return 1;
+    }
+    else return -1;
+  }
+  else if(strcmp(evA->Tipo,"FINE_SERVIZIO")){
+    if(strcmp(evB->Tipo,"CHIAMATA")){
+      return -1;
+    }
+    else return 1;
+  }
+}
+
+/*Inserisce l'evento al posto giusto scorrendo la lista*/
+void InserisciEvento (ptevent TestaLista, ptevent nuovo){
+  ptevent *spooler;
+
+  spooler=&TestaLista
+  while(ConfrontoEventi(spooler->next,nuovo)<0){
+    spooler=&((*spooler)->next);
+  }
+  *spooler=AddEvent(nuovo,*spooler);
+
+}
+
+/*Crea un evento FINE_RICARICA*/
+void FineRicarica(ptevent TestaLista, ParcoAuto *PAuto,car *Auto){
+  ptevent fric;
+
+  fric=NewEvent();
+  fric->Ora=Auto->FineRicarica;
+  strcpy(fric->Tipo,"FINE_RICARICA");
+  fric->Auto=Auto->Numero;
+  strcpy(fric->Nome,"\0");
+  fric->quest=NULL;
+  fric->next=NULL;
+
+  InserisciEvento(TestaLista,fric);
+
+}
+
+/*restituisce 0 in caso di successo, 1 altrimenti, ad esempio in caso si rifiuti una chiamata*/
+int HandleEvent(ParcoAuto *Pauto, grafo *Rete, evento *event){
+car *Auto;
+boolean Premio;
+
+
+  /*Il tipo di evento è assegnato automaticamente e corrisponde a una delle seguenti stringhe nella seguente relazione d'ordine: CHIAMATA < FINE_RICARICA < FINE_SERVIZIO < RIENTRO_SEDE*/
+    if(strcmp(event->Tipo,"CHIAMATA")){
+      Auto=ScegliAuto(Pauto,Rete,event,&Premio);
+
+    }
+    else if(strcmp(event->Tipo,"FINE_RICARICA")){
+
+    }
+    else if(strcmp(event->Tipo,"FINE_SERVIZIO")){
+
+    }
+    else if(strcmp(event->Tipo,"RIENTRO_SEDE")){
+
+    }
+    else printf("errore nella nomenclatura automatica degli eventi: tempo %d\ttipo %s\n",event->Ora,event->Tipo);
 }

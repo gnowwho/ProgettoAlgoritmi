@@ -72,6 +72,8 @@ in ordine alfabetico per il nome dei clienti, lo si stampa, e si libera la memor
   PlaceCar(ReteStradale,ListaTaxi);
   StampaPosAuto(ListaTaxi);
 
+  
+
 
   //printevent(ListaEventi);
 

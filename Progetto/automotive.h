@@ -33,7 +33,6 @@ struct _Viaggio{
   cash Premio;
   int *ElencoNodi; /*punta ad una regione di memoria allocata da DijkTragitto in cui la cella di indice 0 è la lunghezza del cammino minimo, successivamente ho
                     i nodi del tragitto più breve tra partenza e arrivo, compresi. L'array termina in -1, poichè la sua lunghezza non è nota a priori*/
-  tempo Durata;
 };
 
 struct Chiamata {
@@ -60,6 +59,7 @@ typedef struct _ParcoAuto{
   tempo AttivitaMax;
   tempo AutonomiaMax;
   tempo TempoRicarica;
+  int UltimaInCarica; /*-1 se nessuna*/
 }ParcoAuto;
 
 typedef struct _Arco arco;
@@ -172,6 +172,7 @@ ParcoAuto *CreaAutomobili (FILE *fp);
 void Rottama(ParcoAuto *PAuto);
 void PlaceCar (grafo *Rete, ParcoAuto *PAuto);
 void StampaPosAuto(ParcoAuto *PAuto);
+car *ScegliAuto(ParcoAuto *Pauto, grafo *Rete, evento *corsa, boolean *premio);
 
 
 #endif
