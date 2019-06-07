@@ -72,7 +72,7 @@ in ordine alfabetico per il nome dei clienti, lo si stampa, e si libera la memor
   PlaceCar(ReteStradale,ListaTaxi);
   StampaPosAuto(ListaTaxi);
 
-  
+  ElaboraListaEventi(ListaTaxi, ReteStradale, &ListaEventi);
 
 
   //printevent(ListaEventi);

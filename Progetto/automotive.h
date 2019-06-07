@@ -50,7 +50,7 @@ struct Veicolo {
   tempo TToTMovimento; /*tempo totale movimento*/
   pos posizione; /*Nome del nodo (conto da 1)*/
   boolean Libera;
-  tempo FineRicarica;
+  tempo FineEvento;
 };
 
 typedef struct _ParcoAuto{
@@ -58,6 +58,7 @@ typedef struct _ParcoAuto{
   int NumeroAuto;
   tempo AttivitaMax;
   tempo AutonomiaMax;
+  tempo SogliaRicarica; /*così lo calcolo una volta sola*/
   tempo TempoRicarica;
   int UltimaInCarica; /*-1 se nessuna*/
 }ParcoAuto;
@@ -174,5 +175,18 @@ void PlaceCar (grafo *Rete, ParcoAuto *PAuto);
 void StampaPosAuto(ParcoAuto *PAuto);
 car *ScegliAuto(ParcoAuto *Pauto, grafo *Rete, evento *corsa, boolean *premio);
 
+int ConfrontoEventi(ptevent evA, ptevent evB);
+
+void InserisciEvento (ptevent TestaLista, ptevent nuovo);
+
+void FineRicarica(ptevent TestaLista, ptevent generatore, ParcoAuto *PAuto);
+
+void RientroSede(ptevent TestaLista, ptevent generatore, ParcoAuto *PAuto);
+
+void FineServizio(ptevent TestaLista,ptevent generatore, car *auto);
+
+int HandleEvent(ParcoAuto *PAuto, grafo *Rete, ptevent *event, int *Cassa, int *NRicariche);
+
+void ElaboraListaEventi(ParcoAuto *PAuto, grafo *Rete, ptevent *ListaEventi);
 
 #endif

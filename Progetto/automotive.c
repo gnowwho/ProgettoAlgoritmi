@@ -383,7 +383,7 @@ void AggMinHeap(Heap* minHeap, int idx){
 }
 
 /*Versione modificata della funzione precedente che tiene conto dell'indice degli elementi nello heap come secondo criterio di ordinamento (più basso ha priorità)*/
-void AggminHeapAuto(Heap* minHeap, int idx){
+void AggminHeaPAuto(Heap* minHeap, int idx){
   int minimo, sin, dex;
   ElementoHeap *ElemMin;
   ElementoHeap *Elemidx;
@@ -429,7 +429,7 @@ void AggminHeapAuto(Heap* minHeap, int idx){
       /*li scambio effettivamente*/
       ScambiaElemHeap(&minHeap->array[minimo], &minHeap->array[idx]);
       /*richiamo la funzione nel nodo eventualmente modificato*/
-      AggminHeapAuto(minHeap, minimo);
+      AggminHeaPAuto(minHeap, minimo);
     }
 }
 
@@ -444,12 +444,12 @@ void BuildminHeap(Heap* minHeap){
 }
 
 /*Versione modificata della precedente funzione per tener conto del secondo criterio di ordinamento sugli indici dei vertici degli elementi*/
-void BuildminHeapAuto(Heap* minHeap){
+void BuildminHeaPAuto(Heap* minHeap){
   int i;
 
   /*Lo Heap è supposto di lunghezza positiva: la divisione intera quindi arrotonda per difetto*/
   for(i=(minHeap->NumElementi-1)/2;i>=0;i--){     /*tolgo 1 perchè gli indici dei vettori contano da 0*/
-    AggminHeapAuto(minHeap,i);
+    AggminHeaPAuto(minHeap,i);
   }
 }
 
@@ -551,7 +551,7 @@ void AggMaxHeapViaggi(Heap* maxHeap, int idx,ptcall *chiamate){
 
 /*Versione modificata della funzione precedente che tiene conto del secondo criterio dell'indice del nodo nel posizionamento delle auto
 OSS: Va bene ogni qual volta l'indice degli elementi nello heap è il secondo criterio di ordinamento (più basso ha priorità)*/
-void AggMaxHeapAuto(Heap* maxHeap, int idx){
+void AggMaxHeaPAuto(Heap* maxHeap, int idx){
   int massimo, sin, dex;
   ElementoHeap *ElemMax;
   ElementoHeap *Elemidx;
@@ -597,7 +597,7 @@ void AggMaxHeapAuto(Heap* maxHeap, int idx){
       /*li scambio effettivamente*/
       ScambiaElemHeap(&maxHeap->array[massimo], &maxHeap->array[idx]);
       /*richiamo la funzione nel nodo eventualmente modificato*/
-      AggMaxHeapAuto(maxHeap, massimo);
+      AggMaxHeaPAuto(maxHeap, massimo);
     }
 }
 
@@ -622,12 +622,12 @@ void BuildMaxHeapViaggi(Heap* maxHeap, ptcall *chiamate){
 }
 
 /*Versione modificata della precedente funzione per tener conto del secondo criterio di ordinamento nella distribuzione delle auto*/
-void BuildMaxHeapAuto(Heap* maxHeap){
+void BuildMaxHeaPAuto(Heap* maxHeap){
   int i;
 
   /*Lo Heap è supposto di lunghezza positiva: la divisione intera quindi arrotonda per difetto*/
   for(i=(maxHeap->NumElementi-1)/2;i>=0;i--){     /*tolgo 1 perchè gli indici dei vettori contano da 0*/
-    AggMaxHeapAuto(maxHeap,i);
+    AggMaxHeaPAuto(maxHeap,i);
   }
 }
 
@@ -685,7 +685,7 @@ ElementoHeap* extractminAuto(Heap* minHeap){
 
     /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
     (minHeap->NumElementi)--;
-    AggminHeapAuto(minHeap, 0);
+    AggminHeaPAuto(minHeap, 0);
 
     return Primo;
 }
@@ -764,7 +764,7 @@ ElementoHeap* extractMaxAuto(Heap* maxHeap){
 
     /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
     (maxHeap->NumElementi)--;
-    AggMaxHeapAuto(maxHeap, 0);
+    AggMaxHeaPAuto(maxHeap, 0);
 
     return Primo;
 }
@@ -1066,6 +1066,9 @@ ParcoAuto *CreaAutomobili (FILE *fp){
   PAuto->NumeroAuto=Numero;
   PAuto->AttivitaMax=TMax;
   PAuto->AutonomiaMax=Autonomia;
+  /*dato che ricarico solo quando l'autonomia è <20% (non <=) traccio l'80% con la divisione intera (per difetto), e segno l'auto scarica quando CAutonomia è > di quel valore
+  (ovvero l'autonomia è la maggiore approssimazione intera per difetto del 20% di carica, diversa dal 20%). Infatti se la divisione fosse già esatta tale 80% sarebbe esatto, quindi non ammetto =*/
+  PAuto->SogliaRicarica= (int) Autonomia*0.8;
   PAuto->TempoRicarica=TRicarica;
 
 }
@@ -1101,7 +1104,7 @@ ElementoHeap *NodoScelto;
   maxHeap->NumElementi--; /*tolgo l'ultimo nodo da quelli attivi*/
 
   /*Posso ora creare lo heap al massimo della distanza dei nodi dalla sede*/
-  BuildMaxHeapAuto(maxHeap);
+  BuildMaxHeaPAuto(maxHeap);
 
   for(i=1;i<PAuto->NumeroAuto;i++){ /*Parto da i=1 così da non toccare la prima auto, già associata alla sede*/
     NodoScelto=extractMaxAuto(maxHeap);
@@ -1113,7 +1116,7 @@ ElementoHeap *NodoScelto;
       maxHeap->array[j]->Peso=maxHeap->array[j]->Peso+peep; /*Incremento il peso di ogni nodo non scelto della loro distanza dal nodo scelto*/
     }
     free(NodoScelto); /*Dealloco il nodo estratto, non più utile*/
-    BuildMaxHeapAuto(maxHeap); /*ricompongo lo heap: dato che i pesi sono cambiati radicalmente devo ricomporlo completamente*/
+    BuildMaxHeaPAuto(maxHeap); /*ricompongo lo heap: dato che i pesi sono cambiati radicalmente devo ricomporlo completamente*/
   }
 
   /*Qui ogni auto ha una sua posizione, dealloco lo Heap*/
@@ -1131,13 +1134,14 @@ void StampaPosAuto(ParcoAuto *PAuto){
   printf("\n");
 }
 
-/*utility per selezionare l'auto più adatta a servire il viaggio indicato. Ne restituisce un puntatore così che sia agevole modificare gli attributi della vettura. Suppone che le auto libere siano prime in elenco*/
-car *ScegliAuto(ParcoAuto *Pauto, grafo *Rete, evento *corsa, boolean *premio){
+/*utility per selezionare l'auto più adatta a servire il viaggio indicato. Ne restituisce un puntatore così che sia agevole modificare gli attributi della vettura.
+Modifica lo stato dell'auto come se avesse già preso la chiamata, così da non ripetere valutazioni qui obbligatoriamente compiute al di fuori della funzione*/
+car *ScegliAuto(ParcoAuto *PAuto, grafo *Rete, evento *corsa, boolean *premio){
   Heap *idleHeapPos, idleHeapNeg;
   ElementoHeap *AutoScelta;
-  int i,j,Temp;
+  int i,j,Temp, ArrivoADestinazioneTemp, tMov;
 
-  if(Pauto->AutoLibere == 0){ /*se non ho auto libere nessuna auto è adatta al servizio*/
+  if(PAuto->AutoLibere == 0){ /*se non ho auto libere nessuna auto è adatta al servizio*/
     return NULL;
     }
 
@@ -1146,23 +1150,18 @@ car *ScegliAuto(ParcoAuto *Pauto, grafo *Rete, evento *corsa, boolean *premio){
     return NULL;
   }
 
-  /*indici=malloc(Pauto->AutoLibere*sizeof(int));
-  if(indici == NULL){
-    printf("Errore allocazione vettore in ScegliAuto: %s\n", strerror(errno));
-    exit(EXIT_FAILURE);
-  }*/
   AutoScelta=NULL;
 
   /*Voglio fare ricerche a volte di massimo e a volte di minimo in uno heap, con comportamenti diversi sopra e sotto lo zero. quindi ne faccio due*/
-  idleHeapPos=NuovoHeap(Pauto->AutoLibere);
-  idleHeapNeg=NuovoHeap(Pauto->AutoLibere);
+  idleHeapPos=NuovoHeap(PAuto->AutoLibere);
+  idleHeapNeg=NuovoHeap(PAuto->AutoLibere);
 
   /*inizializzo idleHeapPos e idleHeapNeg*/
   p=0;
   n=0;
-  for(i=0;i<Pauto->NumeroAuto;i++){ /*valuto ogni auto libera e stabilisco quanto attenderebbe ferma in caso serva la corsa*/
-    if(Pauto->Taxi[i]->Libera==TRUE){
-      Temp = corsa->quest->OraPartenza - (dijkstra(Rete,Pauto->Taxi[i]->posizione,corsa->quest->Partenza)+corsa->Ora);
+  for(i=0;i<PAuto->NumeroAuto;i++){ /*valuto ogni auto libera e stabilisco quanto attenderebbe ferma in caso serva la corsa*/
+    if(PAuto->Taxi[i]->Libera==TRUE){
+      Temp = corsa->quest->OraPartenza - (dijkstra(Rete,PAuto->Taxi[i]->posizione,corsa->quest->Partenza)+corsa->Ora);
       if(Temp < 0){ /*tempo di idle negativo*/
         idleHeapNeg->array[n] = newElemHeap(i,Temp);
         idleHeapNeg->pos[n] = n;
@@ -1182,18 +1181,25 @@ car *ScegliAuto(ParcoAuto *Pauto, grafo *Rete, evento *corsa, boolean *premio){
   /*Il primo criterio è equivalente su tutte le auto di idleHeapPos, quindi si ricorre subito al secondo e terzo. se al termine dell'analisi non si trova una soluzione si lavorerà sul secondo heap*/
 
   /*qui di seguito si usano gli heap "Auto" in quanto automaticamente tengono conto del terzo criterio.*/
-  BuildminHeapAuto(idleHeapPos); /*la scelta migliore, se ammissibile, è quella col tempo di idle non negativo minore*/
+  BuildminHeaPAuto(idleHeapPos); /*la scelta migliore, se ammissibile, è quella col tempo di idle non negativo minore*/
   /*le auto con idle positivo arrivano a destinazione esattamente nel minimo tempo possibile, già calcolato*/
   while(idleHeapPos->NumElementi > 0){
     AutoScelta=extractminAuto(idleHeapPos);
+    /*Per effettuare il servizio l'auto si muoverebbe per: tempo per arrivare al punto di inizio + tempo per compiere la corsa*/
+    tMov = dijkstra(PAuto->Taxi[AutoScelta->Vertice]->posizione,corsa->quest->Partenza) + corsa->quest->ElencoNodi[0];
     /*se l'elemento è adatto ho finito.  per essere adatto deve poter tornare in sede dopo il servizio*/
-    if(dijkstra(Pauto->Taxi[AutoScelta->Vertice]->posizione,corsa->quest->Partenza) + corsa->quest->ElencoNodi[0] + dijkstra(corsa->quest->Arrivo,1) + Pauto->Taxi[AutoScelta->Vertice]->CAutonomia <= Pauto->AutonomiaMax) {
+    if(tMov + dijkstra(corsa->quest->Arrivo,1) + PAuto->Taxi[AutoScelta->Vertice]->CAutonomia <= PAuto->AutonomiaMax) {
       freeHeap(idleHeapNeg);
       freeHeap(idleHeapPos);
       *premio=TRUE; /*tutte e sole le auto che possono ottenere il premio sono in idleHeapPos*/
+      AutoScelta->FineEvento=ArrivoADestinazioneTemp; /*Segno il momento in cui l'auto sarà di nuovo libera*/
+      AutoScelta->TToTMovimento += tMov;
+      AutoScelta->CAutonomia += tMov;
+      AutoScelta->Libera=FALSE;
+      AutoScelta->posizione=corsa->quest->Arrivo;
       Temp=AutoScelta->Vertice;
       free(AutoScelta);
-      return Pauto->Taxi[Temp];    /*se arrivo a questa istruzione AutoScelta è libera, adatta a compiere il servizio ed è la migliore secondo tutti i criteri*/
+      return PAuto->Taxi[Temp];    /*se arrivo a questa istruzione AutoScelta è libera, adatta a compiere il servizio ed è la migliore secondo tutti i criteri*/
     }
     else{ /*se l'elemento non è adatto lo butto*/
       free(AutoScelta);
@@ -1210,24 +1216,30 @@ car *ScegliAuto(ParcoAuto *Pauto, grafo *Rete, evento *corsa, boolean *premio){
   if(idleHeapNeg->NumElementi > 0) do {
     free(AutoScelta);
     AutoScelta=extractMaxAuto(idleHeapNeg);
-    }
+    tMov = dijkstra(PAuto->Taxi[AutoScelta->Vertice]->posizione,corsa->quest->Partenza) + corsa->quest->ElencoNodi[0];
   /*scarto e ripeto fintanto che ho elementi e quello scelto NON va bene: non ha autonomia*/
-  }while((idleHeapNeg->NumElementi > 0)&&(dijkstra(Pauto->Taxi[AutoScelta->Vertice]->posizione,corsa->quest->Partenza) + corsa->quest->ElencoNodi[0] + dijkstra(corsa->quest->Arrivo,1) + Pauto->Taxi[AutoScelta->Vertice]->CAutonomia <= Pauto->AutonomiaMax))
+}while((idleHeapNeg->NumElementi > 0)&&(tMov + dijkstra(corsa->quest->Arrivo,1) + PAuto->Taxi[AutoScelta->Vertice]->CAutonomia > PAuto->AutonomiaMax))
   freeHeap(idleHeapNeg);
 
   /*BUT WAIT! il veicolo scelto potrebbe anche non andare bene perchè ci mette troppo. Ma se è così ogni veicolo successivo nello heap arriverebbe a destinazione ancora dopo, quindi controllo solo una volta e in caso butto tutto*/
-  if(corsa->quest->OraArrivo < (corsa->quest->OraPartenza - AutoScelta->Peso + corsa->quest->ElencoNodi[0]) ){
+  ArrivoADestinazioneTemp=(corsa->quest->OraPartenza - AutoScelta->Peso + corsa->quest->ElencoNodi[0])
+  if(corsa->quest->OraArrivo < ArrivoADestinazioneTemp ){
     free(AutoScelta);
     return NULL;
   }
 
+  AutoScelta->FineEvento=ArrivoADestinazioneTemp; /*Segno il momento in cui l'auto sarà di nuovo libera*/
+  AutoScelta->TToTMovimento += tMov;
+  AutoScelta->CAutonomia += tMov;
+  AutoScelta->Libera=FALSE;
+  AutoScelta->posizione=corsa->quest->Arrivo;
   Temp=AutoScelta->Vertice;
   free(AutoScelta);
-  return Pauto->Taxi[Temp];
+  return PAuto->Taxi[Temp];
 
 }
 
-/*gli unici eventi che possono avere lo stesso tipo senza numero auto corrispondente sono eventi chiamata, ma non ha senso usare questa funzione su due chiamate, quindi si ritiene sufficente limitarsi ai criteri di ora e tipo*/
+/*gli unici eventi che possono avere lo stesso tipo senza numero auto corrispondente sono eventi chiamata, ma non ha senso usare questa funzione su due chiamate (che sono automaticamente caricate secondo questa gerarchia precedentemente), quindi si ritiene sufficente limitarsi ai criteri di ora e tipo*/
 /*restituisce -1 se il primo precede il secondo, 1 altrimenti*/
 int ConfrontoEventi(ptevent evA, ptevent evB){
   if (evA->Ora < evB->Ora){
@@ -1273,14 +1285,24 @@ void InserisciEvento (ptevent TestaLista, ptevent nuovo){
 
 }
 
-/*Crea un evento FINE_RICARICA*/
-void FineRicarica(ptevent TestaLista, ParcoAuto *PAuto,car *Auto){
+/*Crea un evento FINE_RICARICA e lo inserisce nella lista degli eventi nella posizione corretta. Per stabilire il momento in cui avverà l'evento gestisce automaticamente la coda di ricarica*/
+void FineRicarica(ptevent TestaLista, ptevent generatore, ParcoAuto *PAuto){ /*FINE_RICARICA è generato solo da RIENTRO_SEDE*/
   ptevent fric;
 
   fric=NewEvent();
-  fric->Ora=Auto->FineRicarica;
+
+  if(PAuto->UltimaInCarica==-1){/*Se non ho altre auto in coda la ricarica finisce dopo TempoRicarica da quando l'auto arriva*/
+    fric->Ora=generatore->Ora + PAuto->TempoRicarica;
+  }
+  else{/*Altrimenti finisce dopo TempoRicarica da quando l'auto precedente ha finito*/
+    fric->Ora=PAuto->Taxi[PAuto->UltimaInCarica - 1]->FineEvento + PAuto->TempoRicarica;
+  }
+  /*La macchina è ancora occupata qui dagli eventi precedenti, la libero quando l'evento viene letto, non quando viene creato*/
+  PAuto->Taxi[generatore->Auto - 1]->FineEvento=fric->Ora;
+  PAuto->UltimaInCarica=generatore->Auto;
+
   strcpy(fric->Tipo,"FINE_RICARICA");
-  fric->Auto=Auto->Numero;
+  fric->Auto=generatore->Auto;
   strcpy(fric->Nome,"\0");
   fric->quest=NULL;
   fric->next=NULL;
@@ -1289,25 +1311,113 @@ void FineRicarica(ptevent TestaLista, ParcoAuto *PAuto,car *Auto){
 
 }
 
+/*Crea un evento RIENTRO_SEDE e lo inserisce nella lista degli eventi nella posizione corretta*/
+void RientroSede(ptevent TestaLista, ptevent generatore, ParcoAuto *PAuto){/*RIENTRO_SEDE è generato solo da FINE_SERVIZIO*/
+  ptevent fric;
+
+  fric=NewEvent();
+  fric->Ora=generatore->Ora+dijkstra(1,PAuto->Taxi[generatore->Auto - 1]->posizione); /*L'orario è quello di ARRIVO in sede. l'indice auto in Taxi è di uno inferiore al Numero dell'auto*/
+  strcpy(fric->Tipo,"RIENTRO_SEDE");
+  fric->Auto=generatore->Auto;    /*L'auto attiva RientroSede solo se sufficentemente scarica dopo un servizio: è ancora occupata se si arriva a questo punto*/
+  strcpy(fric->Nome,"\0");
+  fric->quest=NULL;
+  fric->next=NULL;
+
+  InserisciEvento(TestaLista,fric);
+
+}
+
+/*Crea un evento FINE_SERVIZIO e lo inserisce nella lista eventi in posizione*/
+void FineServizio(ptevent TestaLista,ptevent generatore, car *auto){ /*é generato solo da CHIAMATA, auto è output di ScegliAuto*/
+  ptevent fric;
+
+  fric=NewEvent();
+  fric->Ora=Auto->FineEvento;
+  strcpy(fric->Tipo,"FINE_SERVIZIO");
+  fric->Auto=Auto->Numero;
+  strcpy(fric->Nome,generatore->Nome);
+  fric->quest=NULL;
+  fric->next=NULL;
+
+  InserisciEvento(TestaLista,fric);
+
+}
+
 /*restituisce 0 in caso di successo, 1 altrimenti, ad esempio in caso si rifiuti una chiamata*/
-int HandleEvent(ParcoAuto *Pauto, grafo *Rete, evento *event){
+int HandleEvent(ParcoAuto *PAuto, grafo *Rete, ptevent *event, int *Cassa, int *NRicariche){/*OSS: *event è il primo evento in testa, quindi mi da informazioni su tutti gli eventi successivi*/
 car *Auto;
+ptevent aux;
 boolean Premio;
 
 
   /*Il tipo di evento è assegnato automaticamente e corrisponde a una delle seguenti stringhe nella seguente relazione d'ordine: CHIAMATA < FINE_RICARICA < FINE_SERVIZIO < RIENTRO_SEDE*/
-    if(strcmp(event->Tipo,"CHIAMATA")){
-      Auto=ScegliAuto(Pauto,Rete,event,&Premio);
-
+    if(strcmp(event->Tipo,"CHIAMATA")){ /* -> se posso evaderla creo la fine corsa dell'auto scelta e prendo i soldi*/
+      Auto=ScegliAuto(PAuto,Rete,*event,&Premio);
+      if(Auto==NULL){
+        return 1;
+      } else{
+        FineServizio(*event,*event,Auto); /*creo la fine corsa. L'auto è già stata occupata e aggiornata*/
+        /*Se la corsa è stata compiuta aggiungo il suo costo (durata) ai guadagni, eventualmente col premio*/
+        *Cassa += (*event)->quest->ElencoNodi[0];
+        if(Premio==TRUE){
+          *Cassa += (*event)->quest->Premio;
+        }
+      }
     }
-    else if(strcmp(event->Tipo,"FINE_RICARICA")){
-
+    else if(strcmp(event->Tipo,"FINE_RICARICA")){ /* -> libero l'auto e ne resetto l'autonomia. Se era l'ultima segno che non ho auto in coda*/
+      PAuto->Taxi[(*event)->Auto - 1]->Libera=TRUE;
+      PAuto->Taxi[(*event)->Auto - 1]->CAutonomia=0;
+      if((*event)->Auto == PAuto->UltimaInCarica){
+        PAuto->UltimaInCarica=-1;
+        NRicariche++;
+      }
     }
-    else if(strcmp(event->Tipo,"FINE_SERVIZIO")){
-
+    else if(strcmp(event->Tipo,"FINE_SERVIZIO")){/* -> se la batteria è troppo scarica mando l'auto in sede, altrimenti la libero*/
+      /*L'autonomia è troppo bassa se inferiore strettamente al 20%, ovvero CAutonomia è maggiore strettamente di SogliaRicarica*/
+      if(PAuto->Taxi[(*event)->Auto - 1]->CAutonomia > PAuto->SogliaRicarica){
+        RientroSede(*event, *event, PAuto);
+      }
+      else{
+        PAuto->Taxi[(*event)->Auto - 1]->Libera=TRUE;
+      }
     }
-    else if(strcmp(event->Tipo,"RIENTRO_SEDE")){
-
+    else if(strcmp(event->Tipo,"RIENTRO_SEDE")){/* -> segno la posizione dell'auto come in sede e creo l'evento di fine ricarica (gestisce automaticamente la coda)*/
+      PAuto->Taxi[(*event)->Auto - 1]->posizione=1;
+      FineRicarica(*event, *event, PAuto);
     }
-    else printf("errore nella nomenclatura automatica degli eventi: tempo %d\ttipo %s\n",event->Ora,event->Tipo);
+    else {
+      printf("errore nella nomenclatura automatica degli eventi: tempo %d\ttipo %s\n",(*event)->Ora,event->Tipo);
+      exit(EXIT_FAILURE); /*Questo errore può avvenire solo in fase di debugging*/
+    }
+/*elaborato l'evento lo distruggo e aggiorno la testa della coda*/
+  aux=(*event)->next;
+  free(*event);
+  free(event);
+  event=&aux;
+
+  return 0;
+
+}
+
+/*Prende in ingresso la lista eventi, il grafo della rete stradale ed il parco macchine ed esegue la simulazione, stampa i risultati, comprese le informazioni aggiuntive*/
+void ElaboraListaEventi(ParcoAuto *PAuto, grafo *Rete, ptevent *ListaEventi){
+  int NRicariche,Cassa,ChRif,TTot,i;
+
+  NRicariche=0;
+  Cassa=0;
+  ChRif=0;
+  TTot=0;
+
+  printf("Eventi:\n");
+  while(*ListaEventi!=NULL){
+    printf("%d %s %d %s\n",(*ListaEventi)->ora,(*ListaEventi)->Tipo,(*ListaEventi)->Auto,(*ListaEventi)->Nome);
+    ChRif+=HandleEvent(PAuto,Rete,ListaEventi,&Cassa,&NRicariche);
+  }
+
+  for(i=0;i<PAuto->NumeroAuto;i++){
+    TTot+=PAuto->Taxi[i]->TToTMovimento;
+  }
+
+  printf("Rifiuti: %d\nRicariche: %d\nTempo totale: %d\nGuadagno: %d\n",ChRif,NRicariche,TTot,Cassa);
+
 }
