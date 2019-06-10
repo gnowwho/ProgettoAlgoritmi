@@ -7,7 +7,7 @@ Apreda
 Attendoli
 Avello
 Baldi
-Basile
+Basili
 Bassolino
 Battaglia
 Bellini
@@ -33,7 +33,7 @@ D'emilia
 DeBacco
 DeFreitas
 DeLuca
-DeSimone
+DeSimoni
 Delgado
 DiCarlo
 DiPasquale
@@ -43,11 +43,11 @@ Errahmani
 Fiuzzi
 Focaccia
 Forcina
-Gatti
+Gatto
 Gindre
 Grande
 Guerra
-Guidi
+Guido
 Harasymiuk
 Hossain
 Hushchyna
@@ -114,7 +114,7 @@ Viaggi:
 5256 Battaglia 829 48 4 59 94 51 1 28 
 15063 D'emilia 825 30 77 96 91 51 22 100 
 4475 Santoro 814 31 8 22 95 59 4 48 88 9 
-22581 Gatti 808 49 27 99 26 1 51 95 
+22581 Gatto 808 49 27 99 26 1 51 95 
 12104 Hossain 804 88 80 18 50 77 42 34 53 
 18585 Caputo 802 47 99 26 1 74 15 42 30 71 63 46 
 1611 Vitale 797 81 22 51 91 96 77 30 79 
@@ -156,11 +156,11 @@ Viaggi:
 4953 D'Alessandro 500 37 57 84 74 91 7 
 15684 Lacerenza 496 37 57 33 19 64 23 38 
 10441 Cataldi 481 76 22 54 17 
-25921 DeSimone 474 59 95 22 100 2 35 
+25921 DeSimoni 474 59 95 22 100 2 35 
 8579 Renzulli 468 4 59 94 51 41 
-4737 Basile 465 92 68 50 5 52 
+4737 Basili 465 92 68 50 5 52 
 13029 Settembrini 457 41 51 94 59 14 
-18475 Guidi 444 55 8 82 75 35 58 
+18475 Guido 444 55 8 82 75 35 58 
 27746 Mauro 441 56 94 95 11 17 
 17561 Zinnamosca 414 31 89 70 
 27159 Sartori 405 15 10 34 64 83 
@@ -220,7 +220,7 @@ Eventi:
 4273 CHIAMATA 0 Attendoli
 4475 CHIAMATA 0 Santoro
 4481 CHIAMATA 0 Mezzogori
-4737 CHIAMATA 0 Basile
+4737 CHIAMATA 0 Basili
 4953 CHIAMATA 0 D'Alessandro
 5191 CHIAMATA 0 Avello
 5193 CHIAMATA 0 Zenina
@@ -274,7 +274,7 @@ Eventi:
 17976 CHIAMATA 0 Ricci
 18058 FINE_SERVIZIO 3 Bassolino
 18072 CHIAMATA 0 Lucarini
-18475 CHIAMATA 0 Guidi
+18475 CHIAMATA 0 Guido
 18585 CHIAMATA 0 Caputo
 18619 CHIAMATA 0 Ciarla
 18656 CHIAMATA 0 Zamberlan
@@ -290,7 +290,7 @@ Eventi:
 21002 CHIAMATA 0 Hushchyna
 21740 FINE_SERVIZIO 3 Lucarini
 22222 CHIAMATA 0 Pucciotti
-22581 CHIAMATA 0 Gatti
+22581 CHIAMATA 0 Gatto
 22595 CHIAMATA 0 Rocchi
 22956 CHIAMATA 0 Ciampaglia
 23072 CHIAMATA 0 Russo
@@ -302,7 +302,7 @@ Eventi:
 24664 FINE_SERVIZIO 2 Lelli
 25268 CHIAMATA 0 Monti
 25538 CHIAMATA 0 Caniglia
-25921 CHIAMATA 0 DeSimone
+25921 CHIAMATA 0 DeSimoni
 25939 CHIAMATA 0 DiSipio
 26514 CHIAMATA 0 DiRuzza
 26855 FINE_SERVIZIO 2 Monti

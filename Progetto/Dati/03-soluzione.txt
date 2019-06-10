@@ -11,7 +11,7 @@ Attendoli
 Avello
 Bagnato
 Baldi
-Basile
+Basili
 Bassolino
 Battaglia
 Bellaneve
@@ -25,7 +25,7 @@ Bianchi
 Bonomo
 Borkowska
 Borrelli
-Bruni
+Brunetto
 Burla
 Caniglia
 Caporilli
@@ -44,7 +44,7 @@ Ciarla
 Colle
 Colongi
 Coluccia
-Conte
+Contento
 Contiu
 Coppola
 Costa
@@ -61,7 +61,7 @@ DeBacco
 DeFreitas
 DeLuca
 DePeppe
-DeSimone
+DeSimoni
 DelAguila
 Delgado
 DiCarlo
@@ -73,7 +73,7 @@ DiStefano
 Donatantonio
 Eichenberger
 Errahmani
-Esposito
+Espositi
 Farina
 Fassbender
 Ferrante
@@ -81,22 +81,22 @@ Ferrero
 Fico
 Fiuzzi
 Focaccia
-Fontana
+Fontanari
 Forcina
 Fortini
 Franco
 Fusco
 Fusini
-Galli
+Gallio
 Galotti
 Gargiulo
-Gatti
+Gatto
 Gentili
 Ghazi
 Gindre
 Grande
 Guerra
-Guidi
+Guido
 Hajji
 Harasymiuk
 Hossain
@@ -120,7 +120,7 @@ Mahu
 Manchia
 Marata
 Marchesini
-Marchi
+Marchini
 Martini
 Masetti
 Massa
@@ -151,7 +151,7 @@ Pelo
 Pereira
 Piani
 Pinna
-Pinna
+Pinnati
 Piro
 Pongetti
 Porta
@@ -162,7 +162,7 @@ Ranucci
 Rebeccato
 Renzulli
 Riboloni
-Ricci
+Riccati
 Ricci
 Ricciolino
 Rinaldi
@@ -213,7 +213,7 @@ Viaggi:
 13767 Assal 991 24 11 95 94 56 91 15 10 34 53 19 
 7945 Marata 974 79 30 77 96 91 51 22 100 21 
 21099 Pongetti 961 58 100 22 76 41 1 28 57 
-4045 Esposito 952 64 19 33 84 1 44 16 55 31 
+4045 Espositi 952 64 19 33 84 1 44 16 55 31 
 10793 Sipio 944 98 16 44 1 74 15 42 30 79 
 17976 Ricci 938 26 1 74 91 7 68 18 72 85 
 25149 Riboloni 936 40 23 34 84 1 44 16 55 
@@ -223,18 +223,18 @@ Viaggi:
 2401 Simoni 886 79 5 50 68 92 4 14 93 11 24 
 4709 Karim 884 39 20 23 29 30 50 68 92 4 66 
 4849 Pinna 876 29 34 84 28 6 27 86 43 
-14497 Fontana 859 58 35 75 82 31 89 43 86 
+14497 Fontanari 859 58 35 75 82 31 89 43 86 
 15634 Magalotti 854 64 34 42 77 50 18 72 
 19031 Lucani 851 34 84 1 41 76 8 
 5501 Wozniczka 849 11 95 94 56 91 15 42 29 69 
 17957 Cellini 841 46 52 5 18 80 48 97 61 
-25249 Bruni 841 33 84 74 51 95 11 
+25249 Brunetto 841 33 84 74 51 95 11 
 5256 Battaglia 829 48 4 59 94 51 1 28 
 604 Mirante 828 2 21 82 8 55 16 62 99 6 
 15063 D'emilia 825 30 77 96 91 51 22 100 
 5081 Ferrante 822 27 99 26 1 51 94 59 14 66 
 4475 Santoro 814 31 8 22 95 59 4 48 88 9 
-22581 Gatti 808 49 27 99 26 1 51 95 
+22581 Gatto 808 49 27 99 26 1 51 95 
 12104 Hossain 804 88 80 18 50 77 42 34 53 
 18585 Caputo 802 47 99 26 1 74 15 42 30 71 63 46 
 8273 Pracucci 800 45 76 51 91 96 77 30 71 63 52 
@@ -266,19 +266,19 @@ Viaggi:
 18619 Ciarla 684 62 26 28 84 34 23 38 
 9142 Colle 669 96 91 51 22 100 
 2859 DiStefano 668 30 50 68 92 4 14 93 11 
-7082 Ricci 668 13 30 77 96 91 51 41 
+7082 Riccati 668 13 30 77 96 91 51 41 
 4716 Colongi 660 10 15 91 65 78 73 59 93 61 
 14120 Masetti 659 14 4 92 68 50 5 52 46 
 835 Olivelli 658 31 55 16 44 1 28 
 15043 Franco 655 36 6 26 1 51 94 73 
-18877 Marchi 653 34 42 96 7 92 4 
+18877 Marchini 653 34 42 96 7 92 4 
 20084 Labella 651 75 21 100 54 11 93 97 48 
 23934 Medda 651 61 11 22 8 55 
 23556 Fico 642 16 44 1 84 34 29 
 18697 Proietti 633 15 96 50 18 80 88 9 
 18072 Lucarini 632 53 34 42 77 50 18 80 
 3820 Cozzolino 629 85 72 18 5 52 46 
-22467 Pinna 622 19 33 84 1 41 76 
+22467 Pinnati 622 19 33 84 1 41 76 
 9344 Villa 616 54 11 93 97 48 88 72 
 14530 Bianchi 615 82 8 76 41 44 26 
 22307 Fusini 615 92 68 50 30 29 23 
@@ -292,7 +292,7 @@ Viaggi:
 9563 Ferrero 577 96 91 65 78 73 59 93 61 
 11309 Fiuzzi 577 76 51 56 60 65 92 18 
 25073 Urzo 574 65 60 56 51 76 55 98 
-11584 Conte 566 83 3 57 37 6 99 
+11584 Contento 566 83 3 57 37 6 99 
 10431 Lunerti 564 84 1 44 16 98 
 896 Agostini 548 47 99 26 1 51 56 60 65 
 20522 Borrelli 543 88 48 4 59 95 22 90 
@@ -319,14 +319,14 @@ Viaggi:
 20607 Sorbalo 489 5 50 7 65 25 94 
 10441 Cataldi 481 76 22 54 17 
 8690 Fortini 474 59 95 22 100 2 35 
-25921 DeSimone 474 59 95 22 100 2 35 
+25921 DeSimoni 474 59 95 22 100 2 35 
 8579 Renzulli 468 4 59 94 51 41 
-4737 Basile 465 92 68 50 5 52 
+4737 Basili 465 92 68 50 5 52 
 25610 Pasolini 458 96 15 74 1 26 99 
 13029 Settembrini 457 41 51 94 59 14 
 16236 DiPaolo 455 56 25 78 73 4 48 88 
 5053 Marchesini 454 25 78 73 4 48 88 9 
-18475 Guidi 444 55 8 82 75 35 58 
+18475 Guido 444 55 8 82 75 35 58 
 27746 Mauro 441 56 94 95 11 17 
 19694 D'Amico 439 60 91 96 77 30 71 
 490 Gentili 421 84 74 91 60 25 
@@ -394,7 +394,7 @@ Viaggi:
 8982 Baldi 98 26 44 
 17310 Eichenberger 56 1 44 
 23406 Lelli 54 41 45 
-22609 Galli 49 78 65 
+22609 Gallio 49 78 65 
 6987 Coluccia 46 42 10 
 18901 Gindre 39 75 21 
 5184 Rosato 33 22 90 
@@ -430,14 +430,14 @@ Eventi:
 3843 CHIAMATA 0 Zaccaria
 3898 CHIAMATA 0 Coulier
 3918 CHIAMATA 0 Galotti
-4045 CHIAMATA 0 Esposito
+4045 CHIAMATA 0 Espositi
 4273 CHIAMATA 0 Attendoli
 4282 CHIAMATA 0 Hajji
 4475 CHIAMATA 0 Santoro
 4481 CHIAMATA 0 Mezzogori
 4709 CHIAMATA 0 Karim
 4716 CHIAMATA 0 Colongi
-4737 CHIAMATA 0 Basile
+4737 CHIAMATA 0 Basili
 4849 CHIAMATA 0 Pinna
 4953 CHIAMATA 0 D'Alessandro
 5053 CHIAMATA 0 Marchesini
@@ -458,7 +458,7 @@ Eventi:
 6564 CHIAMATA 0 Guerra
 6599 CHIAMATA 0 Scarale
 6987 CHIAMATA 0 Coluccia
-7082 CHIAMATA 0 Ricci
+7082 CHIAMATA 0 Riccati
 7259 CHIAMATA 0 Martini
 7292 CHIAMATA 0 Mena
 7580 CHIAMATA 0 Bento
@@ -490,7 +490,7 @@ Eventi:
 11309 CHIAMATA 0 Fiuzzi
 11357 CHIAMATA 0 Apreda
 11470 CHIAMATA 0 Longo
-11584 CHIAMATA 0 Conte
+11584 CHIAMATA 0 Contento
 11592 CHIAMATA 0 Salvini
 11640 CHIAMATA 0 Covato
 11877 CHIAMATA 0 Contiu
@@ -507,7 +507,7 @@ Eventi:
 14120 CHIAMATA 0 Masetti
 14141 CHIAMATA 0 Harasymiuk
 14228 CHIAMATA 0 Bellettini
-14497 CHIAMATA 0 Fontana
+14497 CHIAMATA 0 Fontanari
 14530 CHIAMATA 0 Bianchi
 14539 CHIAMATA 0 Zapalski
 14942 CHIAMATA 0 Catalano
@@ -537,14 +537,14 @@ Eventi:
 18267 FINE_SERVIZIO 2 Gentili
 18340 CHIAMATA 0 Jebrane
 18409 CHIAMATA 0 Bertini
-18475 CHIAMATA 0 Guidi
+18475 CHIAMATA 0 Guido
 18585 CHIAMATA 0 Caputo
 18619 CHIAMATA 0 Ciarla
 18656 CHIAMATA 0 Zamberlan
 18697 CHIAMATA 0 Proietti
 18739 CHIAMATA 0 Mahu
 18851 CHIAMATA 0 Scardone
-18877 CHIAMATA 0 Marchi
+18877 CHIAMATA 0 Marchini
 18901 CHIAMATA 0 Gindre
 18908 CHIAMATA 0 Vannozzi
 18925 CHIAMATA 0 Orlandi
@@ -574,10 +574,10 @@ Eventi:
 22222 CHIAMATA 0 Pucciotti
 22307 CHIAMATA 0 Fusini
 22408 CHIAMATA 0 Niane
-22467 CHIAMATA 0 Pinna
-22581 CHIAMATA 0 Gatti
+22467 CHIAMATA 0 Pinnati
+22581 CHIAMATA 0 Gatto
 22595 CHIAMATA 0 Rocchi
-22609 CHIAMATA 0 Galli
+22609 CHIAMATA 0 Gallio
 22956 CHIAMATA 0 Ciampaglia
 22987 FINE_SERVIZIO 3 Lattanzi
 23070 FINE_SERVIZIO 1 Hushchyna
@@ -598,28 +598,32 @@ Eventi:
 24888 CHIAMATA 0 Apa
 25073 CHIAMATA 0 Urzo
 25149 CHIAMATA 0 Riboloni
-25249 CHIAMATA 0 Bruni
+25249 CHIAMATA 0 Brunetto
 25268 CHIAMATA 0 Monti
 25478 FINE_RICARICA 3
 25538 CHIAMATA 0 Caniglia
 25610 CHIAMATA 0 Pasolini
 25771 CHIAMATA 0 Castaldo
 25824 CHIAMATA 0 D'Achille
-25921 CHIAMATA 0 DeSimone
+25921 CHIAMATA 0 DeSimoni
 25939 CHIAMATA 0 DiSipio
 25960 CHIAMATA 0 Borkowska
 25962 FINE_SERVIZIO 2 Bertini
+26264 FINE_SERVIZIO 3 Caniglia
 26514 CHIAMATA 0 DiRuzza
+26862 FINE_SERVIZIO 1 Ranucci
 27159 CHIAMATA 0 Sartori
 27221 CHIAMATA 0 Parravani
 27598 CHIAMATA 0 Fassbender
+27618 FINE_SERVIZIO 3 DiRuzza
 27746 CHIAMATA 0 Mauro
+28068 FINE_SERVIZIO 1 Parravani
 28240 FINE_SERVIZIO 2 Sartori
 28756 RIENTRO_SEDE 2
 29356 FINE_RICARICA 2
-Rifiuti: 191
+Rifiuti: 187
 Ricariche: 3
-Tempo totale: 6792
-Guadagno: 18273
+Tempo totale: 11476
+Guadagno: 27227
 UB: 410388
 UBbanale: 454162

@@ -61,6 +61,7 @@ typedef struct _ParcoAuto{
   tempo SogliaRicarica; /*così lo calcolo una volta sola*/
   tempo TempoRicarica;
   int UltimaInCarica; /*-1 se nessuna*/
+  int AutoLibere;
 }ParcoAuto;
 
 typedef struct _Arco arco;
@@ -173,7 +174,7 @@ ParcoAuto *CreaAutomobili (FILE *fp);
 void Rottama(ParcoAuto *PAuto);
 void PlaceCar (grafo *Rete, ParcoAuto *PAuto);
 void StampaPosAuto(ParcoAuto *PAuto);
-car *ScegliAuto(ParcoAuto *Pauto, grafo *Rete, evento *corsa, boolean *premio);
+car *ScegliAuto(ParcoAuto *Pauto, grafo *Rete,ptevent corsa, boolean *premio);
 
 int ConfrontoEventi(ptevent evA, ptevent evB);
 
@@ -181,12 +182,14 @@ void InserisciEvento (ptevent TestaLista, ptevent nuovo);
 
 void FineRicarica(ptevent TestaLista, ptevent generatore, ParcoAuto *PAuto);
 
-void RientroSede(ptevent TestaLista, ptevent generatore, ParcoAuto *PAuto);
+void RientroSede(ptevent TestaLista, ptevent generatore, ParcoAuto *PAuto,grafo *Rete);
 
-void FineServizio(ptevent TestaLista,ptevent generatore, car *auto);
+void FineServizio(ptevent TestaLista, ptevent generatore, car *Gianni);  /*<-Ho chiamato l'auto Gianni perchè pare "auto" sia una keyword*/
 
-int HandleEvent(ParcoAuto *PAuto, grafo *Rete, ptevent *event, int *Cassa, int *NRicariche);
+ptevent ProssimoEvento(ptevent TestaLista);
 
-void ElaboraListaEventi(ParcoAuto *PAuto, grafo *Rete, ptevent *ListaEventi);
+int HandleEvent(ParcoAuto *PAuto, grafo *Rete, ptevent event, int *Cassa, int *NRicariche);
+
+void ElaboraListaEventi(ParcoAuto *PAuto, grafo *Rete, ptevent ListaEventi);
 
 #endif

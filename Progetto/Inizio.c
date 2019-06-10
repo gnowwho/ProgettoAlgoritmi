@@ -26,7 +26,7 @@ int main (int argc, char *argv[])
   ptevent ListaEventi;
   grafo *ReteStradale;
   ParcoAuto *ListaTaxi;
-  //int i,j;
+
 
   /* Parte esecutiva */
   InterpretaLineaComando(argc,argv,chiamate,rete,veicoli);
@@ -72,12 +72,10 @@ in ordine alfabetico per il nome dei clienti, lo si stampa, e si libera la memor
   PlaceCar(ReteStradale,ListaTaxi);
   StampaPosAuto(ListaTaxi);
 
-  ElaboraListaEventi(ListaTaxi, ReteStradale, &ListaEventi);
+
+  ElaboraListaEventi(ListaTaxi, ReteStradale, ListaEventi);
 
 
-  //printevent(ListaEventi);
-
-  //printgraph(ReteStradale);
 
   Rottama(ListaTaxi);/*Dealloca il parco macchine e le macchine*/
   freecalls(ListaChiamate,NumChiamate);/*dealloca anche i viaggi associati*/
