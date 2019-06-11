@@ -623,7 +623,6 @@ Eventi:
 29356 FINE_RICARICA 2
 Rifiuti: 187
 Ricariche: 3
-Tempo totale: 11476
+Tempo totale: 13294
 Guadagno: 27227
 UB: 410388
-UBbanale: 454162

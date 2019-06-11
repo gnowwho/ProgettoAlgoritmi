@@ -104,7 +104,20 @@ typedef struct _Heap{
                             agli elementi dello heap. Così sarà più facile aggiornarlo*/
 } Heap;
 
+/*Versione a peso float dello heap per il problema dello zaino*/
+typedef struct flElemHeap{
+    int Vertice;
+    float Peso;
+} flElementoHeap;
 
+/*Heap float*/
+typedef struct _flHeap{
+    int NumElementi;      /* Numero di elementi dello Heap attualmente presenti*/
+    int MaxElementi;  /*Numero massimo di elementi che lo Heap può contenere*/
+    int *pos;     /*vettore di interi lungo MaxElementi needed for AggiornaDistanza()*/
+    flElementoHeap **array;  /*puntatore alla regione di memoria dove terrò i puntatori
+                            agli elementi dello heap. Così sarà più facile aggiornarlo*/
+} flHeap;
 
 
 ptcall *getcalls (FILE *fp, int *hmcalls);
@@ -120,6 +133,8 @@ int Partition (ptcall *V, int s, int d);
 void ScambiaChiamate (ptcall *pa, ptcall *pb);
 
 ptevent AddEvent (ptevent pne, ptevent poe);
+
+ptevent NewEvent(void);
 
 ptevent CallToEvent (ptcall tel);
 
@@ -143,7 +158,9 @@ ElementoHeap* newElemHeap(int v, int dist);
 Heap* NuovoHeap(int Num);
 void ScambiaElemHeap(ElementoHeap** a, ElementoHeap** b);
 int isEmpty(Heap* Heap);
+int isEmptyfl(flHeap *Heap);
 void freeHeap(Heap *vHeap);
+void freeflHeap(flHeap *vHeap);
 
 void AggMinHeap(Heap* minHeap, int idx);
 void BuildminHeap(Heap* minHeap);
@@ -158,12 +175,15 @@ ElementoHeap* extractMax(Heap* maxHeap);
 /*Varianti Costruzione Heap al massimo*/
 void AggMaxHeapViaggi(Heap* maxHeap, int idx,ptcall *chiamate);
 void AggMaxHeapAuto(Heap* maxHeap, int idx);
+void AggMaxflHeap(flHeap* maxHeap, int idx);
 
 void BuildMaxHeapViaggi(Heap* maxHeap, ptcall *chiamate);
 void BuildMaxHeapAuto(Heap* maxHeap);
+void BuildMaxflHeap(flHeap* maxHeap);
 
 ElementoHeap* extractMaxViaggi(Heap* maxHeap,ptcall* Chiamate);
 ElementoHeap* extractMaxAuto(Heap* maxHeap);
+flElementoHeap* extractMaxfl(flHeap* maxHeap);
 /*Fine varianti*/
 
 int dijkstra(grafo* graph, int src, int dst);
@@ -191,5 +211,10 @@ ptevent ProssimoEvento(ptevent TestaLista);
 int HandleEvent(ParcoAuto *PAuto, grafo *Rete, ptevent event, int *Cassa, int *NRicariche);
 
 void ElaboraListaEventi(ParcoAuto *PAuto, grafo *Rete, ptevent ListaEventi);
+
+int StimaGuadagnoGreedy(ptcall *ListaChiamate, int NumChiamate, ParcoAuto *PAuto);
+
+int StimaBanale (ptcall *ListaChiamate, int NumChiamate);
+
 
 #endif

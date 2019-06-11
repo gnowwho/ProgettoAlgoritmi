@@ -38,7 +38,6 @@ Eventi:
 3054 FINE_SERVIZIO 1 Tiglio
 Rifiuti: 6
 Ricariche: 0
-Tempo totale: 2648
+Tempo totale: 1324
 Guadagno: 5905
 UB: 18794
-UBbanale: 18794

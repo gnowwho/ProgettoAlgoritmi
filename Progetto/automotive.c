@@ -153,7 +153,7 @@ ptevent AddEvent (ptevent pne, ptevent poe){
 }
 
 /*Crea un evento vuoto non inizializzato*/
-ptevent NewEvent(){
+ptevent NewEvent(void){
   ptevent ev;
 
   ev=malloc(sizeof(event));
@@ -312,6 +312,20 @@ ElementoHeap* newElemHeap(int v, int dist){
   return ElemHeap;
 }
 
+/*Funzione di creazione di singoli elementi per lo Heap float*/
+flElementoHeap* newflElemHeap(int v, float dist){
+  flElementoHeap* ElemHeap;
+
+  ElemHeap = malloc(sizeof(flElementoHeap));
+  if(ElemHeap == NULL){
+    printf("Errore allocazione Elemento dello Heap: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  ElemHeap->Vertice = v;
+  ElemHeap->Peso = dist;
+  return ElemHeap;
+}
+
 /*Predispone uno Heap di capacità massima Num*/
 Heap* NuovoHeap(int Num){
   Heap* minHeap;
@@ -342,9 +356,48 @@ Heap* NuovoHeap(int Num){
   return minHeap;
 }
 
+/*Predispone uno Heap float di capacità massima Num*/
+flHeap* NuovoflHeap(int Num){
+  flHeap* minHeap;
+  int i;
+
+  minHeap=malloc(sizeof(flHeap));
+  if(minHeap == NULL){
+    printf("Errore allocazione Heap: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  minHeap->pos=malloc(Num * sizeof(int));
+  if(minHeap->pos == NULL){
+    printf("Errore allocazione campo Heap: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+  minHeap->NumElementi=0;
+  minHeap->MaxElementi=Num;
+  minHeap->array=malloc(Num*sizeof(flElementoHeap*));
+  if(minHeap->array == NULL){
+    printf("Errore allocazione memoria Heap: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  for(i=0;i<Num;i++){
+    minHeap->array[i]=NULL; /*inizializzo a NULL l'array di puntatori*/
+  }
+
+  return minHeap;
+}
+
 /*Semplice routine di scambio per elementi dello heap*/
 void ScambiaElemHeap(ElementoHeap** a, ElementoHeap** b){
   ElementoHeap* t;
+
+  t = *a;
+  *a = *b;
+  *b = t;
+}
+
+/*Semplice routine di scambio per elementi dello flHeap*/
+void ScambiaflElemHeap(flElementoHeap** a, flElementoHeap** b){
+  flElementoHeap* t;
 
   t = *a;
   *a = *b;
@@ -389,7 +442,7 @@ void AggMinHeap(Heap* minHeap, int idx){
 }
 
 /*Versione modificata della funzione precedente che tiene conto dell'indice degli elementi nello heap come secondo criterio di ordinamento (più basso ha priorità)*/
-void AggminHeaPAuto(Heap* minHeap, int idx){
+void AggminHeapAuto(Heap* minHeap, int idx){
   int minimo, sin, dex;
   ElementoHeap *ElemMin;
   ElementoHeap *Elemidx;
@@ -435,7 +488,7 @@ void AggminHeaPAuto(Heap* minHeap, int idx){
       /*li scambio effettivamente*/
       ScambiaElemHeap(&minHeap->array[minimo], &minHeap->array[idx]);
       /*richiamo la funzione nel nodo eventualmente modificato*/
-      AggminHeaPAuto(minHeap, minimo);
+      AggminHeapAuto(minHeap, minimo);
     }
 }
 
@@ -450,12 +503,12 @@ void BuildminHeap(Heap* minHeap){
 }
 
 /*Versione modificata della precedente funzione per tener conto del secondo criterio di ordinamento sugli indici dei vertici degli elementi*/
-void BuildminHeaPAuto(Heap* minHeap){
+void BuildminHeapAuto(Heap* minHeap){
   int i;
 
   /*Lo Heap è supposto di lunghezza positiva: la divisione intera quindi arrotonda per difetto*/
   for(i=(minHeap->NumElementi-1)/2;i>=0;i--){     /*tolgo 1 perchè gli indici dei vettori contano da 0*/
-    AggminHeaPAuto(minHeap,i);
+    AggminHeapAuto(minHeap,i);
   }
 }
 
@@ -492,6 +545,42 @@ void AggMaxHeap(Heap* maxHeap, int idx){
       ScambiaElemHeap(&maxHeap->array[massimo], &maxHeap->array[idx]);
       /*richiamo la funzione nel nodo eventualmente modificato*/
       AggMaxHeap(maxHeap, massimo);
+    }
+}
+
+/*Aggiorna il sottoheap float al MASSIMO dalla posizione idx e tiene conto delle modifiche al posizionamento degli elementi*/
+void AggMaxflHeap(flHeap* maxHeap, int idx){
+  int massimo, sin, dex;
+  flElementoHeap *ElemMax;
+  flElementoHeap *Elemidx;
+
+  massimo = idx;
+  sin = 2 * idx + 1;
+  dex = 2 * idx + 2;
+
+  /*La prima condizione serve ad assicurarsi che l'elemento in posizione sin sia un figlio e non sia esterno allo heap*/
+  if ((sin < maxHeap->NumElementi)&&(maxHeap->array[sin]->Peso > maxHeap->array[massimo]->Peso)){
+    massimo = sin;
+  }
+  /*Simile a sopra*/
+  if ((dex < maxHeap->NumElementi)&&(maxHeap->array[dex]->Peso > maxHeap->array[massimo]->Peso)){
+      massimo = dex;
+    }
+
+  /*Se questa porzione di heap è già corretta non aggiorna nè questa nè i suoi discendenti*/
+  if (massimo != idx){
+      /*copio gli elementi da scambiare*/
+      ElemMax = maxHeap->array[massimo];
+      Elemidx = maxHeap->array[idx];
+
+      /*scambio le loro posizioni*/
+      maxHeap->pos[ElemMax->Vertice] = idx;
+      maxHeap->pos[Elemidx->Vertice] = massimo;
+
+      /*li scambio effettivamente*/
+      ScambiaflElemHeap(&maxHeap->array[massimo], &maxHeap->array[idx]);
+      /*richiamo la funzione nel nodo eventualmente modificato*/
+      AggMaxflHeap(maxHeap, massimo);
     }
 }
 
@@ -548,7 +637,7 @@ void AggMaxHeapViaggi(Heap* maxHeap, int idx,ptcall *chiamate){
 
 /*Versione modificata della funzione precedente che tiene conto del secondo criterio dell'indice del nodo nel posizionamento delle auto
 OSS: Va bene ogni qual volta l'indice degli elementi nello heap è il secondo criterio di ordinamento (più basso ha priorità)*/
-void AggMaxHeaPAuto(Heap* maxHeap, int idx){
+void AggMaxHeapAuto(Heap* maxHeap, int idx){
   int massimo, sin, dex;
   ElementoHeap *ElemMax;
   ElementoHeap *Elemidx;
@@ -594,7 +683,7 @@ void AggMaxHeaPAuto(Heap* maxHeap, int idx){
       /*li scambio effettivamente*/
       ScambiaElemHeap(&maxHeap->array[massimo], &maxHeap->array[idx]);
       /*richiamo la funzione nel nodo eventualmente modificato*/
-      AggMaxHeaPAuto(maxHeap, massimo);
+      AggMaxHeapAuto(maxHeap, massimo);
     }
 }
 
@@ -605,6 +694,16 @@ void BuildMaxHeap(Heap* maxHeap){
   /*Lo Heap è supposto di lunghezza positiva: la divisione intera quindi arrotonda per difetto*/
   for(i=maxHeap->NumElementi/2;i>=0;i--){
     AggMaxHeap(maxHeap,i);
+  }
+}
+
+/*Rende un array salvato in un flHeap uno Heap al Massimo. Usa come lunghezza quella "Attiva"*/
+void BuildMaxflHeap(flHeap* maxHeap){
+  int i;
+
+  /*Lo Heap è supposto di lunghezza positiva: la divisione intera quindi arrotonda per difetto*/
+  for(i=maxHeap->NumElementi/2;i>=0;i--){
+    AggMaxflHeap(maxHeap,i);
   }
 }
 
@@ -619,17 +718,22 @@ void BuildMaxHeapViaggi(Heap* maxHeap, ptcall *chiamate){
 }
 
 /*Versione modificata della precedente funzione per tener conto del secondo criterio di ordinamento nella distribuzione delle auto*/
-void BuildMaxHeaPAuto(Heap* maxHeap){
+void BuildMaxHeapAuto(Heap* maxHeap){
   int i;
 
   /*Lo Heap è supposto di lunghezza positiva: la divisione intera quindi arrotonda per difetto*/
   for(i=(maxHeap->NumElementi-1)/2;i>=0;i--){     /*tolgo 1 perchè gli indici dei vettori contano da 0*/
-    AggMaxHeaPAuto(maxHeap,i);
+    AggMaxHeapAuto(maxHeap,i);
   }
 }
 
 /*indovina*/
 int isEmpty(Heap *Heap){
+    return Heap->NumElementi == 0;
+}
+
+/*indovina, per i float*/
+int isEmptyfl(flHeap *Heap){
     return Heap->NumElementi == 0;
 }
 
@@ -656,6 +760,7 @@ ElementoHeap* extractMin(Heap* minHeap){
 
     /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
     (minHeap->NumElementi)--;
+    minHeap->array[minHeap->NumElementi]=NULL; /*elimino i riferimenti all'elemento estratto dallo heap*/
     AggMinHeap(minHeap, 0);
 
     return Primo;
@@ -681,8 +786,9 @@ ElementoHeap* extractminAuto(Heap* minHeap){
     minHeap->pos[Ultimo->Vertice] = 0;
 
     /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
+    minHeap->array[minHeap->NumElementi-1]=NULL; /*elimino i riferimenti all'elemento estratto dallo heap*/
     (minHeap->NumElementi)--;
-    AggminHeaPAuto(minHeap, 0);
+    AggminHeapAuto(minHeap, 0);
 
     return Primo;
 }
@@ -708,8 +814,37 @@ ElementoHeap* extractMax(Heap* maxHeap){
     maxHeap->pos[Ultimo->Vertice] = 0;
 
     /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
+    maxHeap->array[maxHeap->NumElementi-1]=NULL; /*elimino i riferimenti all'elemento estratto dallo heap*/
     (maxHeap->NumElementi)--;
     AggMaxHeap(maxHeap, 0);
+
+    return Primo;
+}
+
+/*estrae il Massimo dallo heap float, restituisce un puntatore ad esso e lo rimuove concettualmente dallo heap.
+ Non fisicamente, in quanto quella regione di memoria è ancora puntata*/
+flElementoHeap* extractMaxfl(flHeap* maxHeap){
+  flElementoHeap* Primo;
+  flElementoHeap* Ultimo;
+
+    if (isEmptyfl(maxHeap))
+        return NULL;
+
+    /*salva il primo elemento*/
+    Primo = maxHeap->array[0];
+
+    /*Lo sostituisce con l'attuale ultimo*/
+    Ultimo = maxHeap->array[maxHeap->NumElementi-1];
+    maxHeap->array[0] = Ultimo;
+
+    /*aggiorna le posizioni del nuovo primo elemento e dell'elemento estratto nel vettore delle posizioni*/
+    maxHeap->pos[Primo->Vertice] = maxHeap->NumElementi-1;
+    maxHeap->pos[Ultimo->Vertice] = 0;
+
+    /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
+    maxHeap->array[maxHeap->NumElementi-1]=NULL; /*elimino i riferimenti all'elemento estratto dallo heap*/
+    (maxHeap->NumElementi)--;
+    AggMaxflHeap(maxHeap, 0);
 
     return Primo;
 }
@@ -734,6 +869,7 @@ ElementoHeap* extractMaxViaggi(Heap* maxHeap,ptcall* Chiamate){
     maxHeap->pos[Ultimo->Vertice] = 0;
 
     /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
+    maxHeap->array[maxHeap->NumElementi-1]=NULL; /*elimino i riferimenti all'elemento estratto dallo heap*/
     (maxHeap->NumElementi)--;
     AggMaxHeapViaggi(maxHeap, 0,Chiamate);
 
@@ -760,8 +896,9 @@ ElementoHeap* extractMaxAuto(Heap* maxHeap){
     maxHeap->pos[Ultimo->Vertice] = 0;
 
     /*riduce la dimensione dello heap "attivo" e aggiorna lo heap (fa scorrere l'elemento aggiunto fino alla sua legittima posizione)*/
+    maxHeap->array[maxHeap->NumElementi-1]=NULL; /*elimino i riferimenti all'elemento estratto dallo heap*/
     (maxHeap->NumElementi)--;
-    AggMaxHeaPAuto(maxHeap, 0);
+    AggMaxHeapAuto(maxHeap, 0);
 
     return Primo;
 }
@@ -802,8 +939,20 @@ boolean isInmHeap(Heap *minHeap, int v){
      }
 }
 
-/*Funzione che dealloca uno heap, suppoendo che gli elementi "non attivi" siano stati deallocati dopo l'uso quando sono staati estratti*/
+/*Funzione che dealloca uno heap, supponendo che gli elementi "non attivi" siano stati deallocati dopo l'uso quando sono staati estratti*/
 void freeHeap(Heap *vHeap){
+  int v;
+  /*per deallocare gli elementi dello heap non ancora deallocati senza rischiare di liberare la stessa cella due volte chiamo free solo sulle celle "ancora attive"*/
+  for(v=0;v<vHeap->NumElementi;v++){/*Nello heap ho ancora NumElementi elementi allocati*/
+    free(vHeap->array[v]); /*per come è trattata l'estrazione e l'ordinamento gli elementi attivi sono comunque i primi nell'array, dato che vengono scambiati per indirizzo e tenuti in testa*/
+  }
+  free(vHeap->array);
+  free(vHeap->pos);
+  free(vHeap);
+}
+
+/*Funzione che dealloca uno heap float, supponendo che gli elementi "non attivi" siano stati deallocati dopo l'uso quando sono staati estratti*/
+void freeflHeap(flHeap *vHeap){
   int v;
   /*per deallocare gli elementi dello heap non ancora deallocati senza rischiare di liberare la stessa cella due volte chiamo free solo sulle celle "ancora attive"*/
   for(v=0;v<vHeap->NumElementi;v++){/*Nello heap ho ancora NumElementi elementi allocati*/
@@ -1105,7 +1254,7 @@ ElementoHeap *NodoScelto;
   maxHeap->NumElementi--; /*tolgo l'ultimo nodo da quelli attivi*/
 
   /*Posso ora creare lo heap al massimo della distanza dei nodi dalla sede*/
-  BuildMaxHeaPAuto(maxHeap);
+  BuildMaxHeapAuto(maxHeap);
 
   for(i=1;i<PAuto->NumeroAuto;i++){ /*Parto da i=1 così da non toccare la prima auto, già associata alla sede*/
     NodoScelto=extractMaxAuto(maxHeap);
@@ -1117,7 +1266,7 @@ ElementoHeap *NodoScelto;
       maxHeap->array[j]->Peso=maxHeap->array[j]->Peso+peep; /*Incremento il peso di ogni nodo non scelto della loro distanza dal nodo scelto*/
     }
     free(NodoScelto); /*Dealloco il nodo estratto, non più utile*/
-    BuildMaxHeaPAuto(maxHeap); /*ricompongo lo heap: dato che i pesi sono cambiati radicalmente devo ricomporlo completamente*/
+    BuildMaxHeapAuto(maxHeap); /*ricompongo lo heap: dato che i pesi sono cambiati radicalmente devo ricomporlo completamente*/
   }
 
   /*Qui ogni auto ha una sua posizione, dealloco lo Heap*/
@@ -1141,7 +1290,7 @@ Modifica lo stato dell'auto come se avesse già preso la chiamata, così da non 
 car *ScegliAuto(ParcoAuto *PAuto, grafo *Rete,ptevent corsa, boolean *premio){
   Heap *idleHeapPos, *idleHeapNeg;
   ElementoHeap *AutoScelta;
-  int i,p,n,Temp, ArrivoADestinazioneTemp, tMov;
+  int i,p,n,Temp, ArrivoADestinazioneTemp, tMov, *pposizioni,*nposizioni;
 
   if(PAuto->AutoLibere == 0){ /*se non ho auto libere nessuna auto è adatta al servizio*/
     return NULL;
@@ -1158,6 +1307,20 @@ car *ScegliAuto(ParcoAuto *PAuto, grafo *Rete,ptevent corsa, boolean *premio){
   idleHeapPos=NuovoHeap(PAuto->AutoLibere);
   idleHeapNeg=NuovoHeap(PAuto->AutoLibere);
 
+  /*per far funzionare correttamente questi heap dovrò dar loro vertici da 0 a quel che serve, ma creare una "tabella" per far corrispondere questi indici al numero dell'auto*/
+  pposizioni=malloc(PAuto->AutoLibere * sizeof(int));
+  if(pposizioni == NULL){
+    printf("Errore allocazione vettore ausiliario in assegnazione auto: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+  nposizioni=malloc(PAuto->AutoLibere * sizeof(int));
+  if(nposizioni == NULL){
+    printf("Errore allocazione vettore ausiliario in assegnazione auto: %s\n", strerror(errno));
+    exit(EXIT_FAILURE);
+  }
+
+
   /*inizializzo idleHeapPos e idleHeapNeg*/
   p=0;
   n=0;
@@ -1165,42 +1328,51 @@ car *ScegliAuto(ParcoAuto *PAuto, grafo *Rete,ptevent corsa, boolean *premio){
     if(PAuto->Taxi[i]->Libera==TRUE){
       Temp = corsa->quest->OraPartenza - (dijkstra(Rete,PAuto->Taxi[i]->posizione,corsa->quest->Partenza)+corsa->Ora);
       if(Temp < 0){ /*tempo di idle negativo*/
-        idleHeapNeg->array[n] = newElemHeap(i,Temp);
+        idleHeapNeg->array[n] = newElemHeap(n,Temp);
         idleHeapNeg->pos[n] = n;
+        nposizioni[n] = i; /*in posizione n ho l'indice dell'auto*/
         n++;
       }
       else{   /*tempo di idle positivo o nullo*/
-        idleHeapPos->array[p] = newElemHeap(i,Temp);
+        idleHeapPos->array[p] = newElemHeap(p,Temp);
         idleHeapPos->pos[p] = p;
+        pposizioni[p] = i; /*in posizione p ho l'indice dell'auto*/
         p++;
       }
     }
   }
+
+  /*setto la dimensione dello heap ed elimino i campi inutili dall'array di "traduzione". se n o p sono nulli, quello è un free e realloc da NULL*/
   idleHeapNeg->NumElementi=n;
+  nposizioni=realloc(nposizioni,n * sizeof(int));
+
+
   idleHeapPos->NumElementi=p;
+  pposizioni=realloc(pposizioni,p * sizeof(int));
+
 
   /*Avere tempo di idle positivo o nullo significa poter servire la chiamata perfettamente. il massimo negativo è altrimenti il miglio candidato per la prima condizione di scelta*/
   /*Il primo criterio è equivalente su tutte le auto di idleHeapPos, quindi si ricorre subito al secondo e terzo. se al termine dell'analisi non si trova una soluzione si lavorerà sul secondo heap*/
 
   /*qui di seguito si usano gli heap "Auto" in quanto automaticamente tengono conto del terzo criterio.*/
-  BuildminHeaPAuto(idleHeapPos); /*la scelta migliore, se ammissibile, è quella col tempo di idle non negativo minore*/
+  BuildminHeapAuto(idleHeapPos); /*la scelta migliore, se ammissibile, è quella col tempo di idle non negativo minore*/
   /*le auto con idle positivo arrivano a destinazione esattamente nel minimo tempo possibile, già calcolato*/
   while(idleHeapPos->NumElementi > 0){
     AutoScelta=extractminAuto(idleHeapPos);
     /*Per effettuare il servizio l'auto si muoverebbe per: tempo per arrivare al punto di inizio + tempo per compiere la corsa*/
-    tMov = dijkstra(Rete,PAuto->Taxi[AutoScelta->Vertice]->posizione,corsa->quest->Partenza) + corsa->quest->ElencoNodi[0];
+    tMov = dijkstra(Rete,PAuto->Taxi[pposizioni[AutoScelta->Vertice]]->posizione,corsa->quest->Partenza) + corsa->quest->ElencoNodi[0];
     /*se l'elemento è adatto ho finito.  per essere adatto deve poter tornare in sede dopo il servizio*/
-    if(tMov + dijkstra(Rete,corsa->quest->Arrivo,1) + PAuto->Taxi[AutoScelta->Vertice]->CAutonomia <= PAuto->AutonomiaMax) {
+    if(tMov + dijkstra(Rete,corsa->quest->Arrivo,1) + PAuto->Taxi[pposizioni[AutoScelta->Vertice]]->CAutonomia <= PAuto->AutonomiaMax) {
       freeHeap(idleHeapNeg);
       freeHeap(idleHeapPos);
       *premio=TRUE; /*tutte e sole le auto che possono ottenere il premio sono in idleHeapPos*/
-      PAuto->Taxi[AutoScelta->Vertice]->FineEvento=ArrivoADestinazioneTemp; /*Segno il momento in cui l'auto sarà di nuovo libera*/
-      PAuto->Taxi[AutoScelta->Vertice]->TToTMovimento += tMov;
-      PAuto->Taxi[AutoScelta->Vertice]->CAutonomia += tMov;
-      PAuto->Taxi[AutoScelta->Vertice]->Libera=FALSE;
+      PAuto->Taxi[pposizioni[AutoScelta->Vertice]]->FineEvento=ArrivoADestinazioneTemp; /*Segno il momento in cui l'auto sarà di nuovo libera*/
+      PAuto->Taxi[pposizioni[AutoScelta->Vertice]]->TToTMovimento += tMov;
+      PAuto->Taxi[pposizioni[AutoScelta->Vertice]]->CAutonomia += tMov;
+      PAuto->Taxi[pposizioni[AutoScelta->Vertice]]->Libera=FALSE;
       PAuto->AutoLibere--;
-      PAuto->Taxi[AutoScelta->Vertice]->posizione=corsa->quest->Arrivo;
-      Temp=AutoScelta->Vertice;
+      PAuto->Taxi[pposizioni[AutoScelta->Vertice]]->posizione=corsa->quest->Arrivo;
+      Temp=pposizioni[AutoScelta->Vertice];
       free(AutoScelta);
       return PAuto->Taxi[Temp];    /*se arrivo a questa istruzione AutoScelta è libera, adatta a compiere il servizio ed è la migliore secondo tutti i criteri*/
     }
@@ -1216,14 +1388,14 @@ car *ScegliAuto(ParcoAuto *PAuto, grafo *Rete,ptevent corsa, boolean *premio){
   /*sul secondo heap valutiamo il primo criterio, osservando che una parità nel primo criterio è equivalente alla parità nel secondo poichè il cammino minimo è unico. Teniamo quindi in considerazione solo il primo ed il terzo criterio*/
 
   /*qui di seguito si usano gli heap "Auto" in quanto automaticamente tengono conto del terzo criterio.*/
-
+  BuildMaxHeapAuto(idleHeapNeg);
   n=0;/*uso n per tracciare se ho trovato un veicolo adatto o meno per il criterio di autonomia*/
 
   while((idleHeapNeg->NumElementi > 0)&&(n==0)){
     free(AutoScelta);
     AutoScelta=extractMaxAuto(idleHeapNeg);
-    tMov = dijkstra(Rete,PAuto->Taxi[AutoScelta->Vertice]->posizione,corsa->quest->Partenza) + corsa->quest->ElencoNodi[0];
-    if (!(tMov + dijkstra(Rete, corsa->quest->Arrivo,1) + PAuto->Taxi[AutoScelta->Vertice]->CAutonomia > PAuto->AutonomiaMax))
+    tMov = dijkstra(Rete,PAuto->Taxi[nposizioni[AutoScelta->Vertice]]->posizione,corsa->quest->Partenza) + corsa->quest->ElencoNodi[0];
+    if (!(tMov + dijkstra(Rete, corsa->quest->Arrivo,1) + PAuto->Taxi[nposizioni[AutoScelta->Vertice]]->CAutonomia > PAuto->AutonomiaMax))
       n=1;
   } /*qui n=0 se ho scartato tutte le auto. n=1 se ho trovato un auto con abbastanza autonomia */
 
@@ -1237,13 +1409,13 @@ freeHeap(idleHeapNeg);
       return NULL;
     }
     else{
-      PAuto->Taxi[AutoScelta->Vertice]->FineEvento=ArrivoADestinazioneTemp; /*Segno il momento in cui l'auto sarà di nuovo libera*/
-      PAuto->Taxi[AutoScelta->Vertice]->TToTMovimento += tMov;
-      PAuto->Taxi[AutoScelta->Vertice]->CAutonomia += tMov;
-      PAuto->Taxi[AutoScelta->Vertice]->Libera=FALSE;
+      PAuto->Taxi[nposizioni[AutoScelta->Vertice]]->FineEvento=ArrivoADestinazioneTemp; /*Segno il momento in cui l'auto sarà di nuovo libera*/
+      PAuto->Taxi[nposizioni[AutoScelta->Vertice]]->TToTMovimento += tMov;
+      PAuto->Taxi[nposizioni[AutoScelta->Vertice]]->CAutonomia += tMov;
+      PAuto->Taxi[nposizioni[AutoScelta->Vertice]]->Libera=FALSE;
       PAuto->AutoLibere--;
-      PAuto->Taxi[AutoScelta->Vertice]->posizione=corsa->quest->Arrivo;
-      Temp=AutoScelta->Vertice;
+      PAuto->Taxi[nposizioni[AutoScelta->Vertice]]->posizione=corsa->quest->Arrivo;
+      Temp=nposizioni[AutoScelta->Vertice];
       free(AutoScelta);
       return PAuto->Taxi[Temp];
     }
@@ -1372,7 +1544,7 @@ ptevent ProssimoEvento(ptevent TestaLista){
   ptevent aux;
 
   aux=TestaLista->next;
-  free(TestaLista);
+  free(TestaLista); /*si vede qui che viene deallocato solo l'evento. il viaggio a cui esso punta sta ancora dove sta, puntato dalla chiamata*/
   TestaLista=aux;
 
   return TestaLista;
@@ -1456,5 +1628,56 @@ void ElaboraListaEventi(ParcoAuto *PAuto, grafo *Rete, ptevent ListaEventi){
   }
 
   printf("Rifiuti: %d\nRicariche: %d\nTempo totale: %d\nGuadagno: %d\n",ChRif,NRicariche,TTot,Cassa);
+
+}
+
+/*stima per eccesso il guadagno totale tramite un euristica greedy*/
+int StimaGuadagnoGreedy(ptcall *ListaChiamate, int NumChiamate, ParcoAuto *PAuto){
+  flHeap *Corse;
+  flElementoHeap *estratto;
+  int i, UB;
+  long spazio;
+
+  UB=0; /*inizialmente il guadagno è nullo*/
+
+  /*creo uno heap lungo NumChiamate i cui pesi sono il valore al secondo del viaggio associato*/
+  Corse=NuovoflHeap(NumChiamate);
+  Corse->NumElementi=NumChiamate; /*a ogni chiamata ho una corsa, quindi so già quanti elem attivi ho*/
+
+  for(i=0;i<NumChiamate;i++){
+    Corse->array[i]=newflElemHeap(i,(ListaChiamate[i]->Richiesta->Premio + ListaChiamate[i]->Richiesta->ElencoNodi[0])/ListaChiamate[i]->Richiesta->ElencoNodi[0]);
+    Corse->pos[i]=i;
+  }
+
+  BuildMaxflHeap(Corse);
+
+  spazio=PAuto->NumeroAuto * PAuto->AttivitaMax;
+
+  while((spazio>0) && (!isEmptyfl(Corse))){
+    estratto=extractMaxfl(Corse);
+    if (spazio > ListaChiamate[estratto->Vertice]->Richiesta->ElencoNodi[0]){ /*se ho abbastanza tempo rimasto per compiere questa corsa la faccio*/
+      UB += ListaChiamate[estratto->Vertice]->Richiesta->Premio + ListaChiamate[estratto->Vertice]->Richiesta->ElencoNodi[0];
+      spazio -= ListaChiamate[estratto->Vertice]->Richiesta->ElencoNodi[0];
+    }
+    free(estratto);
+  }
+
+  return UB;
+
+}
+
+/*stima banalmente il massimo del denaro ottenibile. Questa funzione è stata creata poichè implicitamente richiesta nelle soluzioni precedenti all' 11/06/19*/
+int StimaBanale (ptcall *ListaChiamate, int NumChiamate){
+  int i, UB;
+
+  UB=0; /*inizialmente il guadagno è nullo*/
+
+  /*sommo tutti i premi e le durate delle chiamate*/
+  for(i=0;i<NumChiamate;i++){
+    UB += ListaChiamate[i]->Richiesta->Premio + ListaChiamate[i]->Richiesta->ElencoNodi[0];
+  }
+
+
+  return UB;
 
 }
