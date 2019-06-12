@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1560347633 "core.tex" "core.pdf" "core" 1560347638
+["pdflatex"] 1560358953 "core.tex" "core.pdf" "core" 1560358958
   "c:/texlive/2018/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1552318650 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2018/texmf-dist/fonts/map/fontname/texfonts.map" 1552319721 3332 103109f5612ad95229751940c61aada0 ""
   "c:/texlive/2018/texmf-dist/fonts/tfm/jknappen/ec/ecbx1000.tfm" 1552319270 3584 2d666ecf6d466d8b007246bc2f94d9da ""
@@ -159,12 +159,12 @@
   "c:/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1552323766 3265573 655ac40406f2c37c0d9078d533adef20 ""
   "c:/texlive/2018/texmf-var/web2c/pdftex/pdflatex.fmt" 1552323876 4223237 f764a707ca706cf356b2c1dcc58d7064 ""
   "c:/texlive/2018/texmf.cnf" 1552323727 673 4ae7b2f49cee444c5343a45b5d0f169c ""
-  "core.aux" 1560347637 465 c3192c6e5151e11d684bef367125eee6 ""
-  "core.tex" 1560347627 10489 3cc0e9aaa141dd4336f4812a7f2d7c07 ""
-  "core.toc" 1560347637 299 8711899191038ec9e9c93511ce532d99 ""
+  "core.aux" 1560358957 1109 4edda3cca4114bbc82d69c845cece085 ""
+  "core.tex" 1560358952 16220 a1fd866ee7da5795405f5f80aee393a0 ""
+  "core.toc" 1560358957 743 1806ae9539d1f56f28e274d9e59c413d ""
   "nul" 0 0 d41d8cd98f00b204e9800998ecf8427e ""
   (generated)
-  "core.pdf"
-  "core.aux"
-  "core.log"
   "core.toc"
+  "core.aux"
+  "core.pdf"
+  "core.log"

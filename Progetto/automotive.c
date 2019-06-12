@@ -1134,7 +1134,7 @@ int *DijkTragitto(grafo *Rete, int src,int dst){
 
 }
 
-/*Stampa le chiamate in ordine di durata DECRESCENTE del viaggio associato.*/
+/*Stampa le chiamate in ordine di durata DECRESCENTE del viaggio associato. O(c(m log n + n + log c))*/
 void PrintChiamViaggio (ptcall *Chiamate, grafo *Rete, int NumChiamate){
   Heap *CHeap;
   ElementoHeap *MaximumElement;
@@ -1174,7 +1174,7 @@ void PrintChiamViaggio (ptcall *Chiamate, grafo *Rete, int NumChiamate){
 
 }
 
-/*Funzione che crea il Parco Auto specificato dal file passato in argomento e restituisce un puntatore ad esso*/
+/*Funzione che crea il Parco Auto specificato dal file passato in argomento e restituisce un puntatore ad esso. O(a), a numero auto*/
 ParcoAuto *CreaAutomobili (FILE *fp){
   int Numero, TMax, Autonomia, TRicarica;
   int i;
@@ -1227,7 +1227,7 @@ ParcoAuto *CreaAutomobili (FILE *fp){
 
 }
 
-/*Funzione ecologica che dealloca lo spazio occupato dalle auto*/
+/*Funzione ecologica che dealloca lo spazio occupato dalle auto. O(a)*/
 void Rottama(ParcoAuto *PAuto){
 int i;
 
@@ -1239,7 +1239,8 @@ int i;
 
 }
 
-/*Funzione che riceve in argomento il parco auto e la rete stradale e distribuisce i Taxi secondo le specifiche*/
+/*Funzione che riceve in argomento il parco auto e la rete stradale e distribuisce i Taxi secondo le specifiche
+O(anm log n)*/
 void PlaceCar (grafo *Rete, ParcoAuto *PAuto){
 int i,j,n,peep;
 Heap *maxHeap;
@@ -1266,7 +1267,7 @@ ElementoHeap *NodoScelto;
                               /*n è il nome del nodo scelto a questo giro*/
     PAuto->Taxi[i]->posizione=n+1; /*l'auto i-esima ha posizione nel nodo n*/
     for(j=0;j<maxHeap->NumElementi;j++){
-      peep=dijkstra(Rete,n+1,(maxHeap->array[j]->Vertice)+1);
+      peep=dijkstra(Rete,n+1,(maxHeap->array[j]->Vertice)+1); /*assegnameto usato in debugging*/
       maxHeap->array[j]->Peso=maxHeap->array[j]->Peso+peep; /*Incremento il peso di ogni nodo non scelto della loro distanza dal nodo scelto*/
     }
     free(NodoScelto); /*Dealloco il nodo estratto, non più utile*/
@@ -1278,7 +1279,7 @@ ElementoHeap *NodoScelto;
 
 }
 
-/*utility per stampare la posizione corrente di ogni auto*/
+/*utility per stampare la posizione corrente di ogni auto. O(a)*/
 void StampaPosAuto(ParcoAuto *PAuto){
   int i;
 
@@ -1290,7 +1291,8 @@ void StampaPosAuto(ParcoAuto *PAuto){
 }
 
 /*utility per selezionare l'auto più adatta a servire il viaggio indicato. Ne restituisce un puntatore così che sia agevole modificare gli attributi della vettura.
-Modifica lo stato dell'auto come se avesse già preso la chiamata, così da non ripetere valutazioni qui obbligatoriamente compiute al di fuori della funzione*/
+Modifica lo stato dell'auto come se avesse già preso la chiamata, così da non ripetere valutazioni qui obbligatoriamente compiute al di fuori della funzione.
+O(a^2 + am log n)*/
 car *ScegliAuto(ParcoAuto *PAuto, grafo *Rete,ptevent corsa, boolean *premio){
   Heap *idleHeapPos, *idleHeapNeg;
   ElementoHeap *AutoScelta;
@@ -1469,7 +1471,8 @@ int ConfrontoEventi(ptevent evA, ptevent evB){
 return -1; /*di default il secondo viene messo dopo il primo. teoricamente non viene raggiunto*/
 }
 
-/*Inserisce l'evento al posto giusto scorrendo la lista. La lista è sempre lunga massimo quante sono le chiamate, poichè ogni evento viene aggiunto solo quando un evento viene rimosso*/
+/*Inserisce l'evento al posto giusto scorrendo la lista. La lista è sempre lunga massimo quante sono le chiamate, poichè ogni evento viene aggiunto solo quando un evento viene rimosso
+O(c)*/
 void InserisciEvento (ptevent TestaLista, ptevent nuovo){
   ptevent *spooler;
 
@@ -1485,7 +1488,8 @@ void InserisciEvento (ptevent TestaLista, ptevent nuovo){
   }
 }
 
-/*Crea un evento FINE_RICARICA e lo inserisce nella lista degli eventi nella posizione corretta. Per stabilire il momento in cui avverà l'evento gestisce automaticamente la coda di ricarica*/
+/*Crea un evento FINE_RICARICA e lo inserisce nella lista degli eventi nella posizione corretta. Per stabilire il momento in cui avverà l'evento gestisce automaticamente la coda di ricarica
+O(c)*/
 void FineRicarica(ptevent TestaLista, ptevent generatore, ParcoAuto *PAuto){ /*FINE_RICARICA è generato solo da RIENTRO_SEDE*/
   ptevent fric;
 
@@ -1511,7 +1515,8 @@ void FineRicarica(ptevent TestaLista, ptevent generatore, ParcoAuto *PAuto){ /*F
 
 }
 
-/*Crea un evento RIENTRO_SEDE e lo inserisce nella lista degli eventi nella posizione corretta*/
+/*Crea un evento RIENTRO_SEDE e lo inserisce nella lista degli eventi nella posizione corretta
+O(c + m log n)*/
 void RientroSede(ptevent TestaLista, ptevent generatore, ParcoAuto *PAuto, grafo *Rete){/*RIENTRO_SEDE è generato solo da FINE_SERVIZIO*/
   ptevent fric;
 
@@ -1527,7 +1532,7 @@ void RientroSede(ptevent TestaLista, ptevent generatore, ParcoAuto *PAuto, grafo
 
 }
 
-/*Crea un evento FINE_SERVIZIO e lo inserisce nella lista eventi in posizione*/
+/*Crea un evento FINE_SERVIZIO e lo inserisce nella lista eventi in posizione O(c)*/
 void FineServizio(ptevent TestaLista,ptevent generatore, car *Gianni){ /*é generato solo da CHIAMATA, auto è output di ScegliAuto*/
   ptevent fric;
 
@@ -1543,7 +1548,7 @@ void FineServizio(ptevent TestaLista,ptevent generatore, car *Gianni){ /*é gene
 
 }
 
-/*distrugge il primo evento della lista e ritorna un puntatore alla lista dei suoi successori*/
+/*distrugge il primo evento della lista e ritorna un puntatore alla lista dei suoi successori. O(1)*/
 ptevent ProssimoEvento(ptevent TestaLista){
   ptevent aux;
 
@@ -1554,7 +1559,11 @@ ptevent ProssimoEvento(ptevent TestaLista){
   return TestaLista;
 }
 
-/*restituisce 0 in caso di successo, 1 altrimenti, ad esempio in caso si rifiuti una chiamata*/
+/*restituisce 0 in caso di successo, 1 altrimenti, ad esempio in caso si rifiuti una chiamata
+CHIAMATA        t O(a^2 + am log n + c)   s O(a+n)
+FINE_RICARICA   t O(1)                    s O(1)
+FINE_SERVIZIO   t O(c + m log n)          s O(n)
+RIENTRO_SEDE    t O(m log n + c)          s O(n)  */
 int HandleEvent(ParcoAuto *PAuto, grafo *Rete, ptevent event, int *Cassa, int *NRicariche){/*OSS: event è il primo evento in testa, quindi mi da informazioni su tutti gli eventi successivi*/
 car *Automobile;
 boolean Premio;
@@ -1611,7 +1620,8 @@ boolean Premio;
 
 }
 
-/*Prende in ingresso la lista eventi, il grafo della rete stradale ed il parco macchine ed esegue la simulazione, stampa i risultati, comprese le informazioni aggiuntive*/
+/*Prende in ingresso la lista eventi, il grafo della rete stradale ed il parco macchine ed esegue la simulazione, stampa i risultati, comprese le informazioni aggiuntive
+O(ca^2 + cam log n + c^2)*/
 void ElaboraListaEventi(ParcoAuto *PAuto, grafo *Rete, ptevent ListaEventi){
   int NRicariche,Cassa,ChRif,TTot,i;
 
@@ -1621,7 +1631,7 @@ void ElaboraListaEventi(ParcoAuto *PAuto, grafo *Rete, ptevent ListaEventi){
   TTot=0;
 
   printf("Eventi:\n");
-  while(ListaEventi!=NULL){
+  while(ListaEventi!=NULL){   /*qui ho alla peggio c eventi per ogni tipo, a conti fatti sopravvive solo l'ordine di grandezza delle operazioni compiute in caso di chiamata*/
     printf("%d %s %d %s\n",ListaEventi->Ora,ListaEventi->Tipo,ListaEventi->Auto,ListaEventi->Nome);
     ChRif+=HandleEvent(PAuto,Rete,ListaEventi,&Cassa,&NRicariche);
     ListaEventi=ProssimoEvento(ListaEventi);
@@ -1635,7 +1645,7 @@ void ElaboraListaEventi(ParcoAuto *PAuto, grafo *Rete, ptevent ListaEventi){
 
 }
 
-/*stima per eccesso il guadagno totale tramite un euristica greedy*/
+/*stima per eccesso il guadagno totale tramite un euristica greedy O(c log c)*/
 int StimaGuadagnoGreedy(ptcall *ListaChiamate, int NumChiamate, ParcoAuto *PAuto){
   flHeap *Corse;
   flElementoHeap *estratto;
@@ -1671,17 +1681,15 @@ int StimaGuadagnoGreedy(ptcall *ListaChiamate, int NumChiamate, ParcoAuto *PAuto
 }
 
 /*stima banalmente il massimo del denaro ottenibile. Questa funzione è stata creata poichè implicitamente richiesta nelle soluzioni precedenti all' 11/06/19*/
-int StimaBanale (ptcall *ListaChiamate, int NumChiamate){
+/*int StimaBanale (ptcall *ListaChiamate, int NumChiamate){
   int i, UB;
 
-  UB=0; /*inizialmente il guadagno è nullo*/
+  UB=0;
 
-  /*sommo tutti i premi e le durate delle chiamate*/
   for(i=0;i<NumChiamate;i++){
     UB += ListaChiamate[i]->Richiesta->Premio + ListaChiamate[i]->Richiesta->ElencoNodi[0];
   }
 
-
   return UB;
 
-}
+}*/
