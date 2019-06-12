@@ -140,7 +140,7 @@ ptevent CallToEvent (ptcall tel);
 
 ptevent ImportaEventoChiamate (ptcall *chiamate, int num);
 
-void printevent(ptevent primo);
+/*void printevent(ptevent primo);*/
 
 grafo *NewGraph (int NumNodi);
 
@@ -150,7 +150,7 @@ void NuovoArco (int part, int fine, int peso, grafo *Rete);
 
 grafo *getgraph (FILE *fp);
 
-void printgraph (grafo *rete);
+/*void printgraph (grafo *rete);*/
 
 /*----------------------------------------------------------------------------*/
 

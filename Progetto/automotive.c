@@ -5,7 +5,7 @@
 #include"automotive.h"
 
 /*legge il numero di chiamate, alloca dinamicamente il vettore dei pointer alle chiamate, e poi memoria per una chiamata per ognuno di quei puntatori.
-questo approccio migliora il sorting*/
+questo approccio migliora il sorting. O(c) con c numero chiamate*/
 ptcall *getcalls (FILE *fp, int *hmcalls){
   int i;
   ptcall *vettcall;
@@ -46,7 +46,7 @@ ptcall *getcalls (FILE *fp, int *hmcalls){
 }
 
 /*Stampa un elenco di k chiamate nell'ordine che i loro puntatori occupano in memoria. per iniziare da una posizione diversa dalla prima basta passare il puntatore
-spostato di alcune posizioni: per aritmetica dei puntatori basta sommarvi un intero*/
+spostato di alcune posizioni: per aritmetica dei puntatori basta sommarvi un intero O(k)*/
 void printcalls (ptcall *vettcall, int k){
   int i;
 
@@ -89,7 +89,7 @@ void printclients (ptcall *vettcall, int k){
 
 }
 
-/* Ordina gli elementi del vettore V con indici compresi fra s e d */
+/* Ordina gli elementi del vettore V con indici compresi fra s e d. Quicksort ha una complessità di O(n^2) nel caso peggiore*/
 void QuickSort (ptcall *V, int s, int d){
   int q;
 
@@ -136,7 +136,7 @@ int Partition (ptcall *V, int s, int d){
   return s2;
 }
 
-/*semplice routine di scambio tra chiamate per indirizzo*/
+/*semplice routine di scambio tra chiamate per indirizzo. O(1)*/
 void ScambiaChiamate (ptcall *pa, ptcall *pb){
   ptcall temp;
 
@@ -146,13 +146,13 @@ void ScambiaChiamate (ptcall *pa, ptcall *pb){
 }
 
 /*restituisce il puntatore al primo elemento della lista dell'elemento puntato da pne seguito da tutti quelli puntati da poe
-assegnando il suo valore alla variabile da cui si è copiato pne si effettua l'inserimento di un elemento tra quello ed il successivo nella lista*/
+assegnando il suo valore alla variabile da cui si è copiato pne si effettua l'inserimento di un elemento tra quello ed il successivo nella lista. O(1)*/
 ptevent AddEvent (ptevent pne, ptevent poe){
   pne->next=poe;
   return pne;
 }
 
-/*Crea un evento vuoto non inizializzato*/
+/*Crea un evento vuoto non inizializzato. O(1)*/
 ptevent NewEvent(void){
   ptevent ev;
 
@@ -164,7 +164,7 @@ ptevent NewEvent(void){
   return ev;
 }
 
-/*a partire da un puntatore a chiamata genera un evento corrispondente a quella chiamata, e restituisce un puntatore ad esso*/
+/*a partire da un puntatore a chiamata genera un evento corrispondente a quella chiamata, e restituisce un puntatore ad esso. O(1) perchè la lunghezza del tipo e nome è dominata da una costante*/
 ptevent CallToEvent (ptcall tel){
   ptevent evchiamata;
 
@@ -179,7 +179,7 @@ ptevent CallToEvent (ptcall tel){
   return evchiamata;
 }
 
-/*Importa la lista delle prime num chiamate, opportunamente in eventi, nell'ordine che i loro puntatori occupano in memoria*/
+/*Importa la lista delle prime num chiamate, opportunamente in eventi, nell'ordine che i loro puntatori occupano in memoria. O(num)*/
 ptevent ImportaEventoChiamate (ptcall *chiamate, int num){
   int i;
   ptevent evlist, *scorri;
@@ -195,16 +195,16 @@ ptevent ImportaEventoChiamate (ptcall *chiamate, int num){
   return evlist;
 }
 
-/*Stampa tutta la lista eventi nella formattazione richiesta*/
-void printevent(ptevent primo){
+/*Stampa tutta la lista eventi nella formattazione richiesta. Usata nel debugging*/
+/*void printevent(ptevent primo){
 
   printf("Eventi:\n");
   for(;primo!=NULL;primo=primo->next){
     printf("%d %s %d %s\n",primo->Ora,primo->Tipo,primo->Auto,primo->Nome);
   }
-}
+}*/
 
-/*crea un grafo di NumNodi vertici senza lati. é preferibile passarne l'indirizzo per muovere meno memoria*/
+/*crea un grafo di NumNodi vertici senza lati. é preferibile passarne l'indirizzo per muovere meno memoria. O(NumNodi)*/
 grafo *NewGraph (int NumNodi){
   grafo *Rete;
   int i;
@@ -231,7 +231,7 @@ grafo *NewGraph (int NumNodi){
   return Rete;
 }
 
-/*Crea un arco verso destinazione di peso peso e restituisce un puntatore ad esso*/
+/*Crea un arco verso destinazione di peso peso e restituisce un puntatore ad esso. O(1)*/
 nodo NuovoArcoSlegato (int destinazione, int peso){
   nodo Nuovo;
 
@@ -248,7 +248,7 @@ nodo NuovoArcoSlegato (int destinazione, int peso){
   return Nuovo;
 }
 
-/*Aggiunge un arco non orientato da part a fine al grafo Rete passato per indirizzo*/
+/*Aggiunge un arco non orientato da part a fine al grafo Rete passato per indirizzo. O(1)*/
 void NuovoArco (int part, int fine, int peso, grafo *Rete){
   nodo new;
 
@@ -262,7 +262,7 @@ void NuovoArco (int part, int fine, int peso, grafo *Rete){
   Rete->ListaNodi[fine-1]=new;
 }
 
-/*Funzione di acquisizione dei grafi da file*/
+/*Funzione di acquisizione dei grafi da file O(n + m) con n nodi e m lati*/
 grafo *getgraph (FILE *fp){
   grafo *Rete;
   int i,hmnodes,hmedges,A,B,P;
@@ -280,8 +280,8 @@ grafo *getgraph (FILE *fp){
 return Rete;
 }
 
-/*funzione di test per stampare le liste di adiacenza*/
-void printgraph (grafo *rete){
+/*funzione di test per stampare le liste di adiacenza. Usata in Debugging*/
+/*void printgraph (grafo *rete){
   int i;
   nodo temp;
 
@@ -296,9 +296,9 @@ void printgraph (grafo *rete){
     printf("\n");
   }
 
-}
+}*/
 
-/*Funzione di creazione di singoli elementi per lo Heap*/
+/*Funzione di creazione di singoli elementi per lo Heap. O(1), le varianti sono uguali*/
 ElementoHeap* newElemHeap(int v, int dist){
   ElementoHeap* ElemHeap;
 
@@ -326,67 +326,67 @@ flElementoHeap* newflElemHeap(int v, float dist){
   return ElemHeap;
 }
 
-/*Predispone uno Heap di capacità massima Num*/
+/*Predispone uno Heap di capacità massima Num. O(Num), uguale per varianti*/
 Heap* NuovoHeap(int Num){
-  Heap* minHeap;
+  Heap* Heap;
   int i;
 
-  minHeap=malloc(sizeof(Heap));
-  if(minHeap == NULL){
+  Heap=malloc(sizeof(Heap));
+  if(Heap == NULL){
     printf("Errore allocazione Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  minHeap->pos=malloc(Num * sizeof(int));
-  if(minHeap->pos == NULL){
+  Heap->pos=malloc(Num * sizeof(int));
+  if(Heap->pos == NULL){
     printf("Errore allocazione campo Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  minHeap->NumElementi=0;
-  minHeap->MaxElementi=Num;
-  minHeap->array=malloc(Num*sizeof(ElementoHeap*));
-  if(minHeap->array == NULL){
+  Heap->NumElementi=0;
+  Heap->MaxElementi=Num;
+  Heap->array=malloc(Num*sizeof(ElementoHeap*));
+  if(Heap->array == NULL){
     printf("Errore allocazione memoria Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
   for(i=0;i<Num;i++){
-    minHeap->array[i]=NULL; /*inizializzo a NULL l'array di puntatori*/
+    Heap->array[i]=NULL; /*inizializzo a NULL l'array di puntatori*/
   }
 
-  return minHeap;
+  return Heap;
 }
 
 /*Predispone uno Heap float di capacità massima Num*/
 flHeap* NuovoflHeap(int Num){
-  flHeap* minHeap;
+  flHeap* Heap;
   int i;
 
-  minHeap=malloc(sizeof(flHeap));
-  if(minHeap == NULL){
+  Heap=malloc(sizeof(flHeap));
+  if(Heap == NULL){
     printf("Errore allocazione Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  minHeap->pos=malloc(Num * sizeof(int));
-  if(minHeap->pos == NULL){
+  Heap->pos=malloc(Num * sizeof(int));
+  if(Heap->pos == NULL){
     printf("Errore allocazione campo Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  minHeap->NumElementi=0;
-  minHeap->MaxElementi=Num;
-  minHeap->array=malloc(Num*sizeof(flElementoHeap*));
-  if(minHeap->array == NULL){
+  Heap->NumElementi=0;
+  Heap->MaxElementi=Num;
+  Heap->array=malloc(Num*sizeof(flElementoHeap*));
+  if(Heap->array == NULL){
     printf("Errore allocazione memoria Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
   for(i=0;i<Num;i++){
-    minHeap->array[i]=NULL; /*inizializzo a NULL l'array di puntatori*/
+    Heap->array[i]=NULL; /*inizializzo a NULL l'array di puntatori*/
   }
 
-  return minHeap;
+  return Heap;
 }
 
-/*Semplice routine di scambio per elementi dello heap*/
+/*Semplice routine di scambio per elementi dello heap O(1)*/
 void ScambiaElemHeap(ElementoHeap** a, ElementoHeap** b){
   ElementoHeap* t;
 
@@ -395,7 +395,7 @@ void ScambiaElemHeap(ElementoHeap** a, ElementoHeap** b){
   *b = t;
 }
 
-/*Semplice routine di scambio per elementi dello flHeap*/
+/*Semplice routine di scambio per elementi dello flHeap O(1)*/
 void ScambiaflElemHeap(flElementoHeap** a, flElementoHeap** b){
   flElementoHeap* t;
 
@@ -404,7 +404,8 @@ void ScambiaflElemHeap(flElementoHeap** a, flElementoHeap** b){
   *b = t;
 }
 
-/*Aggiorna il sottoheap AL MINIMO dalla posizione idx, e tiene conto delle modifiche al posizionamento degli elementi, utile per AggiornaDistanza()*/
+/*Aggiorna il sottoheap AL MINIMO dalla posizione idx, e tiene conto delle modifiche al posizionamento degli elementi, utile per AggiornaDistanza().
+ha complessità O(log(k) - log(floor(idx))), cioè quanti livelli dell'albero binario ho tra i e le foglie. uguale per funz. analoghe */
 void AggMinHeap(Heap* minHeap, int idx){
   int minimo, sin, dex;
   ElementoHeap *ElemMin;
@@ -492,7 +493,7 @@ void AggminHeapAuto(Heap* minHeap, int idx){
     }
 }
 
-/*Rende un array salvato in un Heap uno Heap al Minimo. Usa come lunghezza quella "Attiva"*/
+/*Rende un array salvato in un Heap uno Heap al Minimo. Usa come lunghezza quella "Attiva". O(n), uguale per funz analoghe*/
 void BuildminHeap(Heap* minHeap){
   int i;
 
@@ -739,7 +740,8 @@ int isEmptyfl(flHeap *Heap){
 
 /*estrae il minimo dallo heap, restituisce un puntatore ad esso e lo rimuove concettualmente dallo heap.
  Non fisicamente, in quanto quella regione di memoria è ancora puntata.
- Quando chiamo questa funzione più puntatori (solo tra quelli scartati ho doppi) puntano alle stesse celle di memoria*/
+ Quando chiamo questa funzione più puntatori (solo tra quelli scartati ho doppi) puntano alle stesse celle di memoria.
+ O(log(k)). Le altre sono analoghe*/
 ElementoHeap* extractMin(Heap* minHeap){
   ElementoHeap* Primo;
   ElementoHeap* Ultimo;
@@ -903,9 +905,10 @@ ElementoHeap* extractMaxAuto(Heap* maxHeap){
     return Primo;
 }
 
-/*Modifica la distanza (si intende che viene ridotta) di un vertice di indice v nello heap,
+/*Modifica la distanza (si intende che viene ridotta) di un vertice di indice v nello heap al minimo,
  e poi lo fa salire di tante posizioni quante sono necessarie a mantenere la struttura di heap.
- Usa pos[] per trovare l'indice attuale di v nello heap, così non serve scorrere per contare la posizione, ma lo fa in tempo costante*/
+ Usa pos[] per trovare l'indice attuale di v nello heap, così non serve scorrere per contare la posizione, ma lo fa in tempo costante.
+ O(log k)*/
 void AggiornaDistanza(Heap* minHeap, int v, int dist){
   int i;
 
@@ -939,7 +942,8 @@ boolean isInmHeap(Heap *minHeap, int v){
      }
 }
 
-/*Funzione che dealloca uno heap, supponendo che gli elementi "non attivi" siano stati deallocati dopo l'uso quando sono staati estratti*/
+/*Funzione che dealloca uno heap, supponendo che gli elementi "non attivi" siano stati deallocati dopo l'uso quando sono staati estratti.
+O(k), altri analoghi*/
 void freeHeap(Heap *vHeap){
   int v;
   /*per deallocare gli elementi dello heap non ancora deallocati senza rischiare di liberare la stessa cella due volte chiamo free solo sulle celle "ancora attive"*/
@@ -1130,7 +1134,7 @@ int *DijkTragitto(grafo *Rete, int src,int dst){
 
 }
 
-/*Stampa le chiamate in ordine di durata DECRESCENTE del viaggio associato*/
+/*Stampa le chiamate in ordine di durata DECRESCENTE del viaggio associato.*/
 void PrintChiamViaggio (ptcall *Chiamate, grafo *Rete, int NumChiamate){
   Heap *CHeap;
   ElementoHeap *MaximumElement;
