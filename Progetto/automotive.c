@@ -1292,7 +1292,7 @@ void StampaPosAuto(ParcoAuto *PAuto){
 
 /*utility per selezionare l'auto più adatta a servire il viaggio indicato. Ne restituisce un puntatore così che sia agevole modificare gli attributi della vettura.
 Modifica lo stato dell'auto come se avesse già preso la chiamata, così da non ripetere valutazioni qui obbligatoriamente compiute al di fuori della funzione.
-O(a^2 + am log n)*/
+O(am log n)*/
 car *ScegliAuto(ParcoAuto *PAuto, grafo *Rete,ptevent corsa, boolean *premio){
   Heap *idleHeapPos, *idleHeapNeg;
   ElementoHeap *AutoScelta;
@@ -1560,7 +1560,7 @@ ptevent ProssimoEvento(ptevent TestaLista){
 }
 
 /*restituisce 0 in caso di successo, 1 altrimenti, ad esempio in caso si rifiuti una chiamata
-CHIAMATA        t O(a^2 + am log n + c)   s O(a+n)
+CHIAMATA        t O(am log n + c)         s O(a+n)
 FINE_RICARICA   t O(1)                    s O(1)
 FINE_SERVIZIO   t O(c + m log n)          s O(n)
 RIENTRO_SEDE    t O(m log n + c)          s O(n)  */
@@ -1621,7 +1621,7 @@ boolean Premio;
 }
 
 /*Prende in ingresso la lista eventi, il grafo della rete stradale ed il parco macchine ed esegue la simulazione, stampa i risultati, comprese le informazioni aggiuntive
-O(ca^2 + cam log n + c^2)*/
+O(cam log n + c^2)*/
 void ElaboraListaEventi(ParcoAuto *PAuto, grafo *Rete, ptevent ListaEventi){
   int NRicariche,Cassa,ChRif,TTot,i;
 
