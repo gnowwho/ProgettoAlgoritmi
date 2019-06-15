@@ -13,7 +13,7 @@ ptcall *getcalls (FILE *fp, int *hmcalls){
   /*Leggo il numero di chiamate e alloco altrettanti puntatori a chiamata*/
   fscanf(fp, "%d", hmcalls);
 
-  vettcall = malloc(*hmcalls*sizeof(ptcall));
+  vettcall = calloc(*hmcalls,sizeof(ptcall));
   if(vettcall == NULL){
     printf("Errore allocazione lista: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
@@ -21,13 +21,13 @@ ptcall *getcalls (FILE *fp, int *hmcalls){
 
   /*per ogni puntatore a chiamata alloco una chiamata e la leggo da file*/
   for(i=0;i<*hmcalls;i++){
-    vettcall[i] = malloc(sizeof(call));
+    vettcall[i] = calloc(1,sizeof(call));
     if(vettcall[i] == NULL){
       printf("Errore allocazione chiamata %d: %s\n",i,strerror(errno));
       exit(EXIT_FAILURE);
     }
 
-    vettcall[i]->Richiesta = malloc(sizeof(viaggio));
+    vettcall[i]->Richiesta = calloc(1,sizeof(viaggio));
     if(vettcall[i] == NULL){
       printf("Errore allocazione Viaggio associato alla chiamata %d: %s\n",i,strerror(errno));
       exit(EXIT_FAILURE);
@@ -156,7 +156,7 @@ ptevent AddEvent (ptevent pne, ptevent poe){
 ptevent NewEvent(void){
   ptevent ev;
 
-  ev=malloc(sizeof(event));
+  ev=calloc(1,sizeof(event));
   if(ev == NULL){
     printf("Errore allocazione Evento: %s\n",strerror(errno));
     exit(EXIT_FAILURE);
@@ -209,7 +209,7 @@ grafo *NewGraph (int NumNodi){
   grafo *Rete;
   int i;
 
-  Rete=malloc(sizeof(grafo));
+  Rete=calloc(1,sizeof(grafo));
   if(Rete == NULL){
     printf("Errore allocazione grafo: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
@@ -217,7 +217,7 @@ grafo *NewGraph (int NumNodi){
 
   Rete->NumeroNodi = NumNodi;
 
-  Rete->ListaNodi = malloc(NumNodi*sizeof(nodo));
+  Rete->ListaNodi = calloc(NumNodi,sizeof(nodo));
   if(Rete->ListaNodi == NULL){
     printf("Errore allocazione lista nodi: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
@@ -235,7 +235,7 @@ grafo *NewGraph (int NumNodi){
 nodo NuovoArcoSlegato (int destinazione, int peso){
   nodo Nuovo;
 
-  Nuovo=malloc(sizeof(arco));
+  Nuovo=calloc(1,sizeof(arco));
   if(Nuovo == NULL){
     printf("Errore allocazione Nuovo Arco: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
@@ -302,7 +302,7 @@ return Rete;
 ElementoHeap* newElemHeap(int v, int dist){
   ElementoHeap* ElemHeap;
 
-  ElemHeap = malloc(sizeof(ElementoHeap));
+  ElemHeap = calloc(1,sizeof(ElementoHeap));
   if(ElemHeap == NULL){
     printf("Errore allocazione Elemento dello Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
@@ -316,7 +316,7 @@ ElementoHeap* newElemHeap(int v, int dist){
 flElementoHeap* newflElemHeap(int v, float dist){
   flElementoHeap* ElemHeap;
 
-  ElemHeap = malloc(sizeof(flElementoHeap));
+  ElemHeap = calloc(1,sizeof(flElementoHeap));
   if(ElemHeap == NULL){
     printf("Errore allocazione Elemento dello Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
@@ -328,62 +328,62 @@ flElementoHeap* newflElemHeap(int v, float dist){
 
 /*Predispone uno Heap di capacità massima Num. O(Num), uguale per varianti*/
 Heap* NuovoHeap(int Num){
-  Heap* Heap;
+  Heap* pHeap;
   int i;
 
-  Heap=malloc(sizeof(Heap));
-  if(Heap == NULL){
+  pHeap=(Heap *) calloc(1,sizeof(Heap));
+  if(pHeap == NULL){
     printf("Errore allocazione Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  Heap->pos=malloc(Num * sizeof(int));
-  if(Heap->pos == NULL){
+  pHeap->pos= (int *) calloc(Num , sizeof(int));
+  if(pHeap->pos == NULL){
     printf("Errore allocazione campo Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  Heap->NumElementi=0;
-  Heap->MaxElementi=Num;
-  Heap->array=malloc(Num*sizeof(ElementoHeap*));
-  if(Heap->array == NULL){
+  pHeap->NumElementi=0;
+  pHeap->MaxElementi=Num;
+  pHeap->array=(ElementoHeap **) calloc(Num,sizeof(ElementoHeap*));
+  if(pHeap->array == NULL){
     printf("Errore allocazione memoria Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
   for(i=0;i<Num;i++){
-    Heap->array[i]=NULL; /*inizializzo a NULL l'array di puntatori*/
+    pHeap->array[i]=NULL; /*inizializzo a NULL l'array di puntatori*/
   }
 
-  return Heap;
+  return pHeap;
 }
 
 /*Predispone uno Heap float di capacità massima Num*/
 flHeap* NuovoflHeap(int Num){
-  flHeap* Heap;
+  flHeap* pHeap;
   int i;
 
-  Heap=malloc(sizeof(flHeap));
-  if(Heap == NULL){
+  pHeap=calloc(1,sizeof(flHeap));
+  if(pHeap == NULL){
     printf("Errore allocazione Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  Heap->pos=malloc(Num * sizeof(int));
-  if(Heap->pos == NULL){
+  pHeap->pos=calloc(Num,sizeof(int));
+  if(pHeap->pos == NULL){
     printf("Errore allocazione campo Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
-  Heap->NumElementi=0;
-  Heap->MaxElementi=Num;
-  Heap->array=malloc(Num*sizeof(flElementoHeap*));
-  if(Heap->array == NULL){
+  pHeap->NumElementi=0;
+  pHeap->MaxElementi=Num;
+  pHeap->array=calloc(Num,sizeof(flElementoHeap*));
+  if(pHeap->array == NULL){
     printf("Errore allocazione memoria Heap: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
   for(i=0;i<Num;i++){
-    Heap->array[i]=NULL; /*inizializzo a NULL l'array di puntatori*/
+    pHeap->array[i]=NULL; /*inizializzo a NULL l'array di puntatori*/
   }
 
-  return Heap;
+  return pHeap;
 }
 
 /*Semplice routine di scambio per elementi dello heap O(1)*/
@@ -952,7 +952,7 @@ void freeHeap(Heap *vHeap){
   }
   free(vHeap->array);
   free(vHeap->pos);
-  free(vHeap);
+  //free(vHeap);
 }
 
 /*Funzione che dealloca uno heap float, supponendo che gli elementi "non attivi" siano stati deallocati dopo l'uso quando sono staati estratti*/
@@ -983,7 +983,7 @@ int dijkstra(grafo* Rete, int src, int dst){
   dst--;/*... tipico delle strutture di memoria in cui sono salvati i dati*/
 
   V = Rete->NumeroNodi;        /*Legge il numero di vertici del grafo*/
-  dist=malloc(V*sizeof(int));   /*Vettore per tener conto delle distanze aggiornate dei nodi dall'origine*/
+  dist=calloc(V,sizeof(int));   /*Vettore per tener conto delle distanze aggiornate dei nodi dall'origine*/
 
   /*minHeap dovrà rappresentare gli archi del grafo*/
   minHeap = NuovoHeap(V);
@@ -1058,9 +1058,9 @@ int *DijkTragitto(grafo *Rete, int src,int dst){
   dst=V;
 
   V = Rete->NumeroNodi;        /*Legge il numero di vertici del grafo*/
-  dist=malloc(V*sizeof(int));   /*Vettore per tener conto delle distanze aggiornate dei nodi dall'origine*/
-  succ=malloc(V*sizeof(int));   /*Vettore per tener traccia dei predecessori nel cammino inverso*/
-  Tragitto=malloc((V+2)*sizeof(int)); /*il vettore in cui costruire il tragitto. Inizialmente si era pensato di inizializzarlo a 0 poichè nessun nodo ha nome "0"
+  dist=calloc(V,sizeof(int));   /*Vettore per tener conto delle distanze aggiornate dei nodi dall'origine*/
+  succ=calloc(V,sizeof(int));   /*Vettore per tener traccia dei predecessori nel cammino inverso*/
+  Tragitto=calloc(V+2,sizeof(int)); /*il vettore in cui costruire il tragitto. Inizialmente si era pensato di inizializzarlo a 0 poichè nessun nodo ha nome "0"
                                         ma tale operazione sarebbe stata inutile poichè ogni campo non sovrascritto viene deallocato. Inizializzare avrebbe
                                         richiesto inutilmente un tempo lineare*/
                                     /*OSS: è lungo due in più di V perchè nel caso peggiore contiene tutti i nodi, ma anche la lunghezza del tragitto ed il carattere terminatore*/
@@ -1184,14 +1184,14 @@ ParcoAuto *CreaAutomobili (FILE *fp){
   fscanf(fp,"%d %d %d %d ",&Numero,&TMax,&Autonomia,&TRicarica);
 
   /*Alloco memoria per il parco auto*/
-  PAuto=malloc(sizeof(ParcoAuto));
+  PAuto=calloc(1,sizeof(ParcoAuto));
   if(PAuto == NULL){
     printf("Errore allocazione Parco Auto: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
   /*Alloco memoria per l'array delle singole auto*/
-  PAuto->Taxi=malloc(sizeof(car*)*Numero);
+  PAuto->Taxi=calloc(Numero,sizeof(car*));
   if(PAuto->Taxi == NULL){
     printf("Errore allocazione Puntatori ai singoli Taxi: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
@@ -1199,7 +1199,7 @@ ParcoAuto *CreaAutomobili (FILE *fp){
 
   /*Alloco memoria per le singole auto e compilo i loro campi. Questa operazione non ha una sottofunzione dedicata data la similitudine dell'inizializzazione delle auto*/
   for(i=0;i<Numero;i++){
-    PAuto->Taxi[i]=malloc(sizeof(car));
+    PAuto->Taxi[i]=calloc(1,sizeof(car));
     if(PAuto->Taxi[i] == NULL){
       printf("Errore allocazione Auto %d-esima: %s\n",i+1, strerror(errno));
       exit(EXIT_FAILURE);
@@ -1314,13 +1314,13 @@ car *ScegliAuto(ParcoAuto *PAuto, grafo *Rete,ptevent corsa, boolean *premio){
   idleHeapNeg=NuovoHeap(PAuto->AutoLibere);
 
   /*per far funzionare correttamente questi heap dovrò dar loro vertici da 0 a quel che serve, ma creare una "tabella" per far corrispondere questi indici al numero dell'auto*/
-  pposizioni=malloc(PAuto->AutoLibere * sizeof(int));
+  pposizioni=calloc(PAuto->AutoLibere,sizeof(int));
   if(pposizioni == NULL){
     printf("Errore allocazione vettore ausiliario in assegnazione auto: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
 
-  nposizioni=malloc(PAuto->AutoLibere * sizeof(int));
+  nposizioni=calloc(PAuto->AutoLibere,sizeof(int));
   if(nposizioni == NULL){
     printf("Errore allocazione vettore ausiliario in assegnazione auto: %s\n", strerror(errno));
     exit(EXIT_FAILURE);
