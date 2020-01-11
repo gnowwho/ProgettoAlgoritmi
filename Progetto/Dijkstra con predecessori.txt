@@ -1,0 +1,67 @@
+/*Trova il cammino minimo da Fonte a Dest (indici, non pos nell'array) nel grafo
+ puntato da rete e restituisce un puntatore all'elenco degli archi che compongono
+ tale cammino, per indirizzo*/
+/*Ocio che ne tiene conto ma non li restituisce*/
+
+int Dijkstra (grafo *rete,int Fonte, int Dest){
+int *Raggiunto,*Distanza,i,min,indmin;
+nodo temp;
+
+if((Fonte>rete->NumeroNodi) || (Dest>rete->NumeroNodi)){
+  printf("Errore nella chiamata di Dijkstra\n");
+  exit(EXIT_FAILURE);
+}
+
+Distanza=malloc(sizeof(int)*rete->NumeroNodi);
+if(Distanza == NULL){
+  printf("Errore allocazione lista: %s\n", strerror(errno));
+  exit(EXIT_FAILURE);
+}
+/*inizializzo le distanze ad infinito*/
+memset(Distanza,inf,sizeof(int));
+
+Raggiunto=malloc(rete->NumeroNodi*sizeof(int));
+if(Raggiunto == NULL){
+  printf("Errore allocazione lista: %s\n", strerror(errno));
+  exit(EXIT_FAILURE);
+}
+/*Segno i nodi come non raggiunti (raggiunti dal nodo di indice -NumeroNodi, che non esiste)*/
+memset(Raggiunto,-NumeroNodi-1,sizeof(int));
+
+/*inizializzo il peso di Fonte a 0 e la segno come raggiunto da se stesso */
+Raggiunto[Fonte-1]=Fonte-1;
+Distanza[Fonte-1]=0;
+
+/*finchè Dest non è segnato come raggiunto da qualcosa faccio:*/
+While(Raggiunto[Dest-1]<0){
+
+  /*Aggiorno la lista dei nodi raggiungibili in un passo*/
+  for(i=0;i<rete->NumeroNodi;i++){
+    if (Raggiunto[i]>=0){ /*se il nodo è raggiunto*/
+      temp=rete->ListaNodi[i]; /*guardo la sua lista di adiacenza*/
+      while(temp->fratello!=NULL){ /*la scorro tutta*/
+        if (Distanza[temp->indice]==inf){ /*se un nodo non è già stato segnato come raggiungibile in un passo*/
+          Distanza[temp->indice]=Distanza[i]+temp->peso; /*lo segno come tale*/
+          Raggiunto[i]=-(i+1); /*tengo conto di chi può raggiungerlo senza segnarlo come raggiunto*/
+          temp=temp->fratello; /*aggiorno temp per scorrere la lista di adiacenza*/
+          }
+        }
+      }
+    }
+
+  /*cerco la minima distanza tra i nodi non raggiunti ma raggiungibili e segno
+  il nodo relativo a tale valore come raggiungibile*/
+  min=inf;
+  indmin=-1;
+  for(i=0;i<rete->NumeroNodi;i++){ /*passo tutti i nodi*/
+    if((Raggiunto[i]<0)&&(Distanza[i]<min)){/*se ne trovo uno non raggiunto ma raggiungimile in meno tempo del minimo corrente*/
+      min=Distanza[i]; /*aggiorno il minimo corrente*/
+      indmin=i; /*e segno che nodo è*/
+    }
+   }
+   if(indmin!=-1){ /*se ho trovatotale minimo (dovrebbe essere sempre vero perchè il grafo è connesso)*/
+     Raggiunto[indmin]=-(Raggiunto[indmin]+1);
+   }
+  }
+  return Distanza[Dest-1];
+}

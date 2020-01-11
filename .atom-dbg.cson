@@ -1,0 +1,16 @@
+"Progetto\\a.exe":
+	path: "Progetto\\a.exe"
+	args: ["01-c* 01-r* 01-v*"]
+	cwd: "Progetto"
+
+"Progetto\\a.exe 2":
+	debugger: "dbg-gdb"
+	path: "Progetto\\a.exe"
+	args: ["01-c* 01-r* 01-v*"]
+	cwd: "Progetto"
+
+"Progetto\\a.exe 3":
+	debugger: "dbg-gdb"
+	path: "Progetto\\a.exe"
+	args: ["Dati/02-c* Dati/02-r* Dati/02-v*"]
+	cwd: "Progetto"

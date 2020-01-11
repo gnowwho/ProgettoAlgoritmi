@@ -16,21 +16,21 @@ void InterpretaLineaComando (int argc, char *argv[], char *chiamate, char *rete,
 
 
 /* Programma principale --------------------------------------------------------*/
-int main (int argc, char *argv[])
-{
+int main (int argc, char *argv[]){
   /* Parte dichiarativa */
   char chiamate[ROW_LENGTH],rete[ROW_LENGTH],veicoli[ROW_LENGTH];
   FILE *fcall, *fnet, *fcar;
-  /*grafo *graph;*/
   ptcall *ListaChiamate;
   int NumChiamate;
   ptevent ListaEventi;
   grafo *ReteStradale;
+  ParcoAuto *ListaTaxi;
+
 
   /* Parte esecutiva */
   InterpretaLineaComando(argc,argv,chiamate,rete,veicoli);
 
-  /*apertura dei file di dati ed handling dell'eventuale errore*/
+  /*apertura dei file di dati ed handling dell'eventuale errore. Ricordiamo che exit chiude ga solo i file aperti prima di terminare l'esecuzione*/
   fcall= fopen(chiamate,"r");
     if(fcall == NULL){
        printf("Errore apertura file chiamate: %s\n", strerror(errno));
@@ -40,51 +40,54 @@ int main (int argc, char *argv[])
   fnet= fopen(rete,"r");
     if(fnet == NULL){
       printf("Errore apertura file rete stradale: %s\n", strerror(errno));
-      fclose(fcall);
       exit(EXIT_FAILURE);
     }
 
   fcar= fopen(veicoli,"r");
     if(fcar == NULL) {
       printf("Errore apertura file veicoli: %s\n", strerror(errno));
-      fclose(fcall);
-      fclose(fnet);
       exit(EXIT_FAILURE);
     }
 
 /*Inizializza e produce l'elenco delle chiamate*/
-  ListaChiamate=NULL; /*Inizializzato perchè -Wall sorride di più così*/
   ListaChiamate=getcalls(fcall,&NumChiamate);
+  fclose(fcall);
+/*acquisisce il grafo in liste di adiacenza*/
   ReteStradale=getgraph(fnet);
-/*Inizia a creare gli eventi generati dalle chiamate e li salva nella struttura dati adeguata*/
+  fclose(fnet);
+/*Inizia a creare gli eventi generati dalle chiamate e li salva in una lista linkata. questa è pensata con rimozioni solo in testa e inserimenti ovunque*/
   ListaEventi=ImportaEventoChiamate (ListaChiamate,NumChiamate);
 /*ora che l'ordine delle chiamate in ListaChiamate utile alla simulazione è stato salvato importando in tale ordine gli eventi, si ordinano
 in ordine alfabetico per il nome dei clienti, lo si stampa, e si libera la memoria: non ci serviranno più le chiamate in questa forma.*/
   QuickSort(ListaChiamate,0,NumChiamate-1);
-//  printclients(ListaChiamate,NumChiamate);
-  freecalls (ListaChiamate,NumChiamate);
+  printclients(ListaChiamate,NumChiamate);
 
-  printevent(ListaEventi);
+/*ora devo ordinare le chiamate per durata del tragitto associato e stamparle. */
+  PrintChiamViaggio(ListaChiamate,ReteStradale,NumChiamate);
 
-  printgraph(ReteStradale);
-
-
-
-  fclose(fcall);
-  fclose(fnet);
+/*Devo creare e distribuire le auto, poi stampare la loro posizione*/
+  ListaTaxi=CreaAutomobili(fcar);
   fclose(fcar);
+  PlaceCar(ReteStradale,ListaTaxi);
+  StampaPosAuto(ListaTaxi);
 
+/*a questo punto viene eseguita la simulazione vera e propria, elaborando dalla testa la lista eventi.*/
+  ElaboraListaEventi(ListaTaxi, ReteStradale, ListaEventi);
+
+  printf("UB: %d\n",StimaGuadagnoGreedy(ListaChiamate,NumChiamate,ListaTaxi));
+  /*printf("UB banale: %d\n",StimaBanale(ListaChiamate,NumChiamate) );    questa funzione è stata rimossa in quanto il suo output non è esplicitamente richiesto dalle specifiche ed è scomparso dalle soluzioni dopo l'11/06/19*/
+
+  Rottama(ListaTaxi);/*Dealloca il parco macchine e le macchine*/
+  freecalls(ListaChiamate,NumChiamate);/*dealloca anche i viaggi associati*/
 
   return EXIT_SUCCESS;
 }
 
 
 
-
 /* Definizione delle procedure secondarie --------------------------------------*/
 
-void InterpretaLineaComando (int argc, char *argv[], char *chiamate, char *rete, char *veicoli)
-{
+void InterpretaLineaComando (int argc, char *argv[], char *chiamate, char *rete, char *veicoli){
   if (argc != 4)
   {
     fprintf(stderr,"Errore nella linea di comando!\n");

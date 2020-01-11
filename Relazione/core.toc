@@ -1,0 +1,16 @@
+\babel@toc {italian}{}
+\babel@toc {italian}{}
+\contentsline {section}{\numberline {1}Il Problema}{3}% 
+\contentsline {subsection}{\numberline {1.1}Dettagli aggiuntivi}{3}% 
+\contentsline {section}{\numberline {2}La modellizzazione e le scelte}{5}% 
+\contentsline {subsection}{\numberline {2.1}I punti centrali del modello}{5}% 
+\contentsline {subsubsection}{\numberline {2.1.1}Trovare i cammini minimi per muoversi in Citt\IeC {\`a}}{5}% 
+\contentsline {subsubsection}{\numberline {2.1.2}La selezione dei Taxi}{6}% 
+\contentsline {subsubsection}{\numberline {2.1.3}L'elaborazione degli eventi discreti}{7}% 
+\contentsline {subsection}{\numberline {2.2}Sottoproblemi di magnitudine minore}{8}% 
+\contentsline {subsubsection}{\numberline {2.2.1}Disporre i veicoli sulla rete}{8}% 
+\contentsline {subsubsection}{\numberline {2.2.2}Il trattamento dei dati degli utenti}{9}% 
+\contentsline {subsubsection}{\numberline {2.2.3}La stima per eccesso dei guadagni}{10}% 
+\contentsline {subsubsection}{\numberline {2.2.4}Gli ubiqui Heap}{10}% 
+\contentsline {subsection}{\numberline {2.3}Lista delle funzioni e complessit\IeC {\`a} temporale e spaziale}{11}% 
+\contentsline {section}{\numberline {3}Note}{14}% 

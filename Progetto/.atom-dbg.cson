@@ -1,0 +1,7 @@
+"a.exe":
+	path: "a.exe"
+	args: ["Dati/04-c* Dati/04-r* Dati/04-v*"]
+
+"a.exe 2":
+	path: "a.exe"
+	args: ["Dati/01-c* Dati/01-r* Dati/01-v*"]
