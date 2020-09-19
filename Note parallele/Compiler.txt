@@ -1,0 +1,17 @@
+In Data 05/02/2019
+
+attualmente stai usando "Visual Studio Code" come editor,
+hai le estensioni "C/C++"e "C/C++ Compile Run" installate
+per garantire il corretto funzionamento della seconda hai installato "Mingw 0.63"
+
+Mingw dovrebbe essere un insieme di pacchetti che permettono di usare roba linux su windows, in particolare gcc
+l'installazione eseguita contiene:
+- GNU Compiler per Fortran
+- GNU Compiler per C++
+- GNU Compiler per Objective C
+- GNU Compiler per Ada
+- "A Basic MinGW installation"
+- "A Basic MSYS Installation (meta)"
+- "An MSYS installation for MinGW Developers (meta)"
+
+la directory di installazione di MinGW è direttamente in C
